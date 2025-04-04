@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Lumea" parent="android:Theme.Material.Light.NoActionBar" />
+
+     <style name="Theme.Lumea.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/lumea_logo</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lumea</item>
+    </style>
 </resources>
