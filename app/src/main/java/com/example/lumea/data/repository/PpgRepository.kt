@@ -1,5 +1,6 @@
 package com.example.lumea.data.repository
 
+import android.util.Log
 import com.example.lumea.data.sensor.CameraManager
 import com.example.lumea.domain.HeartRateCalculator
 import com.example.lumea.domain.model.HeartRateResult
@@ -28,6 +29,7 @@ class PpgRepository(
     init {
         scope.launch {
             cameraManager.ppgReadings.collect { readings ->
+                // Log.d("PpgRepository", "Received PPG readings: ${readings.size}")
                 if (readings.size >= 50) {
                     calculateHeartRate(readings)
                 }

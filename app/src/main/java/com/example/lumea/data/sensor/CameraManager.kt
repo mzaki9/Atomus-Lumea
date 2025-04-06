@@ -1,6 +1,8 @@
 package com.example.lumea.data.sensor
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -35,6 +37,26 @@ class CameraManager(
     
     private val _ppgReadings = MutableStateFlow<List<PpgReading>>(emptyList())
     val ppgReadings: StateFlow<List<PpgReading>> = _ppgReadings.asStateFlow()
+
+
+    //timer-related properties
+    private val handler = Handler(Looper.getMainLooper())
+    private var timerStarted = false
+    private var timerSeconds = 0
+    private val timerRunnable = object : Runnable {
+    override fun run() {
+        timerSeconds++
+        Log.d("HeartRate", "Measurement in progress: $timerSeconds seconds")
+        
+        if (timerSeconds >= 60) {
+            Log.d("HeartRate", "Measurement complete: 60 seconds reached")
+            // Stop the measurement after 60 seconds
+            stopPpgMeasurement()
+        } else {
+            handler.postDelayed(this, 1000)
+        }
+    }
+}
     
     fun startPpgMeasurement(lifecycleOwner: LifecycleOwner) {
         if (_cameraState.value == CameraState.Measuring) {
@@ -85,8 +107,15 @@ class CameraManager(
                 
                 // Enable the flash - crucial for PPG
                 camera?.cameraControl?.enableTorch(true)
-                
+
                 _cameraState.value = CameraState.Measuring
+
+                if (!timerStarted && _ppgReadings.value.isEmpty()) {
+                    timerStarted = true
+                    timerSeconds = 0
+                    Log.d("HeartRate", "Starting heart rate measurement timer")
+                    handler.post(timerRunnable)
+                }
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Use case binding failed", e)
@@ -108,6 +137,12 @@ class CameraManager(
         _previewUseCase.value = null
         
         _cameraState.value = CameraState.Idle
+
+        if (timerStarted) {
+            handler.removeCallbacks(timerRunnable)
+            timerStarted = false
+            Log.d("HeartRate", "Stopped heart rate measurement timer after $timerSeconds seconds")
+        }
     }
     
     fun shutdown() {
@@ -116,7 +151,7 @@ class CameraManager(
     }
     
     companion object {
-        private const val MAX_READINGS = 300 // ~10 seconds at 30fps
+        private const val MAX_READINGS = 1800 
     }
     
     sealed class CameraState {
