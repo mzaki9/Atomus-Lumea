@@ -41,6 +41,8 @@ fun CameraScreen(
     val cameraState by viewModel.cameraState.collectAsState(CameraManager.CameraState.Idle)
     val heartRate by viewModel.heartRate.collectAsState()
     val confidence by viewModel.confidence.collectAsState()
+    val hrv by viewModel.hrv.collectAsState()
+    val spo2 by viewModel.spo2.collectAsState()
     val preview by viewModel.preview.collectAsState()
 
     // Request camera permission if not granted
@@ -130,7 +132,9 @@ fun CameraScreen(
                         // Heart Rate Result
                         HeartRateDisplay(
                             heartRate = heartRate,
-                            confidence = confidence
+                            confidence = confidence,
+                            hrv = hrv,
+                            spo2 = spo2     
                         )
                     }
                 }

@@ -8,6 +8,12 @@ import kotlin.math.sqrt
 
 class HeartRateCalculator {
 
+    companion object {
+        private const val SPO2_CALIBRATION_SCALE = 1.1f
+        private const val SPO2_CALIBRATION_OFFSET = 5f
+        private const val MIN_READINGS = 50 
+    }
+
     fun calculateHeartRate(readings: List<PpgReading>): HeartRateResult? {
         if (readings.size < MIN_READINGS) {
             return null // Not enough data
@@ -19,7 +25,7 @@ class HeartRateCalculator {
         // Apply a simple smoothing filter
         val smoothedValues = applyMovingAverageFilter(greenValues)
 
-        // Detect peaks
+        // Detect peaks 
         val peaks = detectPeaks(smoothedValues)
 
         if (peaks.size < 2) {
@@ -58,9 +64,14 @@ class HeartRateCalculator {
         // Convert to confidence score (0-1) - lower variation means higher confidence
         val confidence = maxOf(0f, 1f - (coefficientOfVariation * 5).toFloat())
 
+        val hrv = calculateHRV(filteredIntervals)
+        val spo2 = calculateSpO2(readings)
+
         return HeartRateResult(
             heartRate = heartRate,
             confidence = confidence,
+            hrv = hrv,
+            spo2 = spo2.coerceIn(0f, 100f),
             measurements = readings
         )
     }
@@ -133,7 +144,48 @@ class HeartRateCalculator {
         return sqrt(variance)
     }
 
-    companion object {
-        private const val MIN_READINGS = 50 // Need enough data for reliable calculation
+
+    private fun calculateHRV(intervals: List<Long>): Float {
+        if (intervals.size < 2) return 0f
+        
+        // RMSSD (Root Mean Square of Successive Differences)
+        var sumSquaredDiff = 0f
+        for (i in 1 until intervals.size) {
+            val diff = intervals[i] - intervals[i-1]
+            sumSquaredDiff += diff * diff
+        }
+        
+        return sqrt(sumSquaredDiff / (intervals.size - 1))
     }
+
+    private fun calculateSpO2(readings: List<PpgReading>): Float {
+        // SpO2 calculation using red and infrared light ratio
+        // This is a simplified approximation - actual SpO2 needs calibration
+        
+        val redAC = calculateAC(readings.map { it.redMean })
+        val redDC = calculateDC(readings.map { it.redMean })
+        val irAC = calculateAC(readings.map { it.intensity })
+        val irDC = calculateDC(readings.map { it.intensity })
+        
+        if (irDC == 0f || redDC == 0f) return 0f
+        
+        val R = (redAC / redDC) / (irAC / irDC)
+        
+        // Empirical formula (needs calibration for accuracy)
+        val rawSpO2 = 110f - (25f * R)
+        
+        // Apply calibration formula: (raw * scale) + offset
+        return (rawSpO2 * SPO2_CALIBRATION_SCALE + SPO2_CALIBRATION_OFFSET).coerceIn(0f, 100f)
+    }
+
+    private fun calculateAC(values: List<Float>): Float {
+        if (values.isEmpty()) return 0f
+        val mean = values.average().toFloat()
+        return sqrt(values.map { (it - mean).pow(2) }.average().toFloat())
+    }
+
+    private fun calculateDC(values: List<Float>): Float {
+        return if (values.isEmpty()) 0f else values.average().toFloat()
+    }
+
 }

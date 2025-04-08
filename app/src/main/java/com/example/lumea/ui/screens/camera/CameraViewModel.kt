@@ -1,6 +1,7 @@
 package com.example.lumea.ui.screens.camera
 
 import android.content.Context
+import android.util.Log
 import androidx.camera.core.Preview
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,12 @@ class CameraViewModel(
     private val _confidence = MutableStateFlow(0f)
     val confidence: StateFlow<Float> = _confidence.asStateFlow()
 
+    private val _hrv = MutableStateFlow(0f)
+    private val _spo2 = MutableStateFlow(0f)
+    
+    val hrv = _hrv.asStateFlow()
+    val spo2 = _spo2.asStateFlow()
+
     // Camera state
     val cameraState = cameraManager.cameraState
     val preview = cameraManager.previewUseCase
@@ -37,6 +44,9 @@ class CameraViewModel(
                 result?.let {
                     _heartRate.value = it.heartRate
                     _confidence.value = it.confidence
+                    _hrv.value = it.hrv
+                    _spo2.value = it.spo2
+                    Log.d("HeartRate", "HRV: ${it.hrv}, SPO2: ${it.spo2}")
                 }
             }
         }

@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HeartRateDisplay(
     heartRate: Int,
-    confidence: Float
+    confidence: Float,
+    hrv: Float,
+    spo2: Float
 ) {
     Column(
         modifier = Modifier
@@ -62,7 +64,27 @@ fun HeartRateDisplay(
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // HRV Display
+        if (hrv > 0) {
+            Text(
+                text = "HRV: ${String.format("%.1f", hrv)} ms",
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // SpO2 Display
+        if (spo2 > 0) {
+            Text(
+                text = "SpO2: ${String.format("%.1f", spo2)}%",
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         // Confidence Indicator (only shown if we have a reading)
         if (heartRate > 0) {
