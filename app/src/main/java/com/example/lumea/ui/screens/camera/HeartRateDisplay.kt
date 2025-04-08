@@ -1,7 +1,5 @@
 package com.example.lumea.ui.screens.camera
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -21,18 +17,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 
 @Composable
 fun HeartRateDisplay(
     heartRate: Int,
     confidence: Float,
     respiratoryRate: Float,
-    spo2: Float
+    spo2: Float,
+    riskClass: Int?,
+    riskPrediction: FloatArray? // Tambahkan parameter riskPrediction
 ) {
     Column(
         modifier = Modifier
@@ -68,7 +66,7 @@ fun HeartRateDisplay(
 
         if (respiratoryRate > 0) {
             Text(
-                text = "Respiratory Rate: ${String.format("%.1f", respiratoryRate)} breaths/min", // Updated text
+                text = "Respiratory Rate: ${String.format("%.1f", respiratoryRate)} breaths/min",
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -85,7 +83,30 @@ fun HeartRateDisplay(
             )
         }
 
-        // Confidence Indicator (only shown if we have a reading)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display Risk Prediction with Percentage and Category
+        riskClass?.let { className ->
+            riskPrediction?.getOrNull(className)?.let { probability ->
+                val percentage = String.format(Locale.US, "%.0f", probability * 100)
+                val healthCondition = when (className) {
+                    1 -> "Tidak Sehat"
+                    2 -> "Kurang Sehat"
+                    3 -> "Cukup Sehat"
+                    4 -> "Sangat Sehat"
+                    else -> "Unknown Condition"
+                }
+                Text(
+                    text = "$percentage% $healthCondition",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        // Confidence Indicator
         if (heartRate > 0) {
             Row(
                 modifier = Modifier.fillMaxWidth(0.8f),
@@ -103,9 +124,9 @@ fun HeartRateDisplay(
                         .height(8.dp)
                         .weight(1f),
                     color = when {
-                        confidence > 0.7f -> Color(0xFF4CAF50) // Green
-                        confidence > 0.4f -> Color(0xFFFFC107) // Amber
-                        else -> Color(0xFFF44336) // Red
+                        confidence > 0.7f -> Color(0xFF4CAF50)
+                        confidence > 0.4f -> Color(0xFFFFC107)
+                        else -> Color(0xFFF44336)
                     },
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )

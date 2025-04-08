@@ -51,6 +51,8 @@ dependencies {
     // Permission handling
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 
+    implementation ("org.tensorflow:tensorflow-lite:+")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

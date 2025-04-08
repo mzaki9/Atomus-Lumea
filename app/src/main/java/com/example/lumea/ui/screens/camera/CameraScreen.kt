@@ -43,6 +43,8 @@ fun CameraScreen(
     val confidence by viewModel.confidence.collectAsState()
     val respiratoryRate by viewModel.respiratoryRate.collectAsState()
     val spo2 by viewModel.spo2.collectAsState()
+    val riskPrediction by viewModel.riskPrediction.collectAsState()
+    val riskClass by viewModel.riskClass.collectAsState() // Collect riskClass
     val preview by viewModel.preview.collectAsState()
 
     // Request camera permission if not granted
@@ -129,17 +131,17 @@ fun CameraScreen(
                     }
 
                     else -> {
-                        // Heart Rate Result
                         HeartRateDisplay(
                             heartRate = heartRate,
                             confidence = confidence,
                             respiratoryRate = respiratoryRate,
-                            spo2 = spo2     
+                            spo2 = spo2,
+                            riskClass = riskClass,
+                            riskPrediction= riskPrediction
                         )
                     }
                 }
 
-                // Floating Action Button at Bottom
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
