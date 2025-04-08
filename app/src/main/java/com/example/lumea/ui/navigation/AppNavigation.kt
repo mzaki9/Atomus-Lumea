@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.lumea.ui.components.BottomNavigationBar
+import com.example.lumea.ui.components.TopBar
 import com.example.lumea.ui.screens.camera.CameraScreen
 import com.example.lumea.ui.screens.home.HomeScreen
 import com.example.lumea.ui.screens.profile.ProfileScreen
@@ -33,6 +34,14 @@ fun AppNavigation() {
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
     Scaffold(
+        topBar = {
+            if (currentRoute != Screen.Camera.route) {
+                TopBar(
+                    onGroupClick = { /* Buat Ke koneksi */ },
+                    onSettingsClick = { /* buat ke settings k */ }
+                )
+            }
+        },
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = currentRoute,
