@@ -18,9 +18,20 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = BluePrimary,
+    onPrimary = White,
+    primaryContainer = BlueLight,
+    onPrimaryContainer = BluePrimary,
+    
+    secondary = BlueSecondary,
+    onSecondary = White,
+    secondaryContainer = BlueLight.copy(alpha = 0.7f),
+    onSecondaryContainer = BluePrimary,
+    
+    tertiary = BlueLight,
+    onTertiary = BluePrimary,
+    tertiaryContainer = BlueLight.copy(alpha = 0.5f),
+    onTertiaryContainer = BluePrimary,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -36,19 +47,20 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun LumeaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+//    val colorScheme = when {
+//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//            val context = LocalContext.current
+//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+//        }
+//
+//        darkTheme -> DarkColorScheme
+//        else -> LightColorScheme
+//    }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
