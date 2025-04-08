@@ -11,7 +11,7 @@ data class PpgReading(
 data class HeartRateResult(
     val heartRate: Int,
     val confidence: Float,
-    val hrv: Float,
+    val respiratoryRate: Float,
     val spo2: Float, 
     val measurements: List<PpgReading>
 )

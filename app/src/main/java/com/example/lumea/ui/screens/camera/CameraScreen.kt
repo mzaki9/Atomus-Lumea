@@ -41,7 +41,7 @@ fun CameraScreen(
     val cameraState by viewModel.cameraState.collectAsState(CameraManager.CameraState.Idle)
     val heartRate by viewModel.heartRate.collectAsState()
     val confidence by viewModel.confidence.collectAsState()
-    val hrv by viewModel.hrv.collectAsState()
+    val respiratoryRate by viewModel.respiratoryRate.collectAsState()
     val spo2 by viewModel.spo2.collectAsState()
     val preview by viewModel.preview.collectAsState()
 
@@ -133,7 +133,7 @@ fun CameraScreen(
                         HeartRateDisplay(
                             heartRate = heartRate,
                             confidence = confidence,
-                            hrv = hrv,
+                            respiratoryRate = respiratoryRate,
                             spo2 = spo2     
                         )
                     }

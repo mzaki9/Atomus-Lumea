@@ -64,13 +64,13 @@ class HeartRateCalculator {
         // Convert to confidence score (0-1) - lower variation means higher confidence
         val confidence = maxOf(0f, 1f - (coefficientOfVariation * 5).toFloat())
 
-        val hrv = calculateHRV(filteredIntervals)
+        val respiratoryRate = calculateRespiratory(filteredIntervals)
         val spo2 = calculateSpO2(readings)
 
         return HeartRateResult(
             heartRate = heartRate,
             confidence = confidence,
-            hrv = hrv,
+            respiratoryRate = respiratoryRate,
             spo2 = spo2.coerceIn(0f, 100f),
             measurements = readings
         )
@@ -145,17 +145,12 @@ class HeartRateCalculator {
     }
 
 
-    private fun calculateHRV(intervals: List<Long>): Float {
+      private fun calculateRespiratory(intervals: List<Long>): Float {
         if (intervals.size < 2) return 0f
         
-        // RMSSD (Root Mean Square of Successive Differences)
-        var sumSquaredDiff = 0f
-        for (i in 1 until intervals.size) {
-            val diff = intervals[i] - intervals[i-1]
-            sumSquaredDiff += diff * diff
-        }
+        val avgInterval = intervals.average().toFloat()
         
-        return sqrt(sumSquaredDiff / (intervals.size - 1))
+        return (60000 / (avgInterval * 4)).coerceIn(12f, 20f)
     }
 
     private fun calculateSpO2(readings: List<PpgReading>): Float {

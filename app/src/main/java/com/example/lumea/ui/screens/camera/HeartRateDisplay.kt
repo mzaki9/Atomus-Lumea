@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 fun HeartRateDisplay(
     heartRate: Int,
     confidence: Float,
-    hrv: Float,
+    respiratoryRate: Float,
     spo2: Float
 ) {
     Column(
@@ -66,10 +66,9 @@ fun HeartRateDisplay(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // HRV Display
-        if (hrv > 0) {
+        if (respiratoryRate > 0) {
             Text(
-                text = "HRV: ${String.format("%.1f", hrv)} ms",
+                text = "Respiratory Rate: ${String.format("%.1f", respiratoryRate)} breaths/min", // Updated text
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onBackground
             )
