@@ -2,18 +2,12 @@ package com.example.lumea.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import com.example.lumea.ui.auth.AuthUiState
 import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.components.BottomNavigationBar
@@ -24,25 +18,27 @@ import com.example.lumea.ui.screens.login.LoginScreen
 import com.example.lumea.ui.screens.profile.ProfileScreen
 import com.example.lumea.ui.screens.register.RegisterScreen
 import com.example.lumea.ui.screens.setting.SettingScreen
+import com.example.lumea.ui.screens.friendlist.FriendListScreen
 
 object Routes {
     const val HOME = "home"
     const val CAMERA = "camera"
     const val PROFILE = "profile"
     const val SETTING = "setting"
-
-    // Auth routes
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FRIEND_LIST = "friend_list"
 }
+
 
 sealed class Screen(val route: String) {
     data object Home : Screen(Routes.HOME)
     data object Camera : Screen(Routes.CAMERA)
     data object Profile : Screen(Routes.PROFILE)
-    data object Setting: Screen(Routes.SETTING)
+    data object Setting : Screen(Routes.SETTING)
     data object Login : Screen(Routes.LOGIN)
     data object Register : Screen(Routes.REGISTER)
+    data object FriendList : Screen(Routes.FRIEND_LIST)
 }
 
 @Composable
@@ -51,10 +47,11 @@ fun AppNavigation() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
-    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(LocalContext.current))
+    val authViewModel: AuthViewModel =
+        viewModel(factory = AuthViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
 
-    // Check authentication state and navigate accordingly
+    // Handle auth state changes
     LaunchedEffect(authState) {
         when (authState) {
             is AuthUiState.Authenticated -> {
@@ -66,6 +63,7 @@ fun AppNavigation() {
                     }
                 }
             }
+
             is AuthUiState.NotAuthenticated -> {
                 if (currentRoute != Routes.LOGIN && currentRoute != Routes.REGISTER) {
                     navController.navigate(Routes.LOGIN) {
@@ -75,27 +73,38 @@ fun AppNavigation() {
                     }
                 }
             }
-            else -> { /* Loading or Error states handled elsewhere */ }
+
+            else -> Unit
         }
     }
 
-    // Check if the current screen is the Settings screen
-    val isSettingsScreen = currentRoute == Screen.Setting.route
-
-    // Check if we're on an auth screen (login/register)
+    val isExceptionScreen = currentRoute == Screen.Setting.route || currentRoute == Screen.FriendList.route
     val isAuthScreen = currentRoute == Routes.LOGIN || currentRoute == Routes.REGISTER
-
+    val isCameraScreen = currentRoute == Screen.Camera.route
+    var screenName = ""
+    if (isExceptionScreen){
+        if (currentRoute==Screen.Setting.route){
+            screenName = "Setting";
+        }else if (currentRoute==Screen.FriendList.route){
+            screenName = "Friend List";
+        }
+    }
     Scaffold(
         topBar = {
-            if (!isAuthScreen && currentRoute != Screen.Camera.route) {
+            if (!isAuthScreen && !isCameraScreen) {
                 TopBar(
-                    onGroupClick = { /* Group action */ },
+                    onGroupClick = {
+                        navController.navigate(Screen.FriendList.route) {
+                            launchSingleTop = true
+                        }
+                    },
                     onSettingsClick = {
                         navController.navigate(Screen.Setting.route) {
                             launchSingleTop = true
                         }
                     },
-                    isSettingsScreen = isSettingsScreen,
+                    isExceptionScreen = isExceptionScreen,
+                    screenName = screenName,
                     onBackClick = {
                         navController.popBackStack()
                     }
@@ -103,9 +112,7 @@ fun AppNavigation() {
             }
         },
         bottomBar = {
-            // Only show the bottom navigation bar on main screens
-            // Hide it on Settings screen and auth screens
-            if (!isSettingsScreen && !isAuthScreen) {
+            if (!isAuthScreen && !isExceptionScreen) {
                 BottomNavigationBar(
                     currentRoute = currentRoute,
                     onNavigate = { route ->
@@ -125,10 +132,10 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Login.route,  // Start with login by default
+            startDestination = Screen.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Auth screens
+            // Auth Screens
             composable(Screen.Login.route) {
                 LoginScreen(
                     onCreateAccountClick = {
@@ -136,7 +143,6 @@ fun AppNavigation() {
                     }
                 )
             }
-
             composable(Screen.Register.route) {
                 RegisterScreen(
                     onLoginClick = {
@@ -147,23 +153,22 @@ fun AppNavigation() {
                 )
             }
 
-            // Main app screens
+            // Main Screens
             composable(Screen.Home.route) {
                 HomeScreen()
             }
-
+            composable(Screen.FriendList.route) {
+                FriendListScreen()
+            }
             composable(Screen.Camera.route) {
                 CameraScreen()
             }
-
             composable(Screen.Profile.route) {
                 ProfileScreen()
             }
-
             composable(Screen.Setting.route) {
                 SettingScreen(
                     onLogoutClick = {
-                        // Navigate to login screen after logout
                         navController.navigate(Screen.Login.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 inclusive = true
