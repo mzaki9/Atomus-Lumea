@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.theme.AppTypography
+import com.example.lumea.ui.theme.BluePrimary
 import com.example.lumea.ui.theme.LumeaTheme
 import com.example.lumea.ui.theme.PinkLight
 
@@ -60,6 +61,63 @@ fun SettingScreen(
     onLogoutClick: () -> Unit = {}
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var notificationsEnabled by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+    ) {
+        // Top content
+        Column(
+            modifier = Modifier.weight(1f)  // This pushes logout to bottom
+        ) {
+            ModernSettingItem(
+                icon = Icons.Default.Person,
+                title = "Profile",
+                description = "View and edit your profile",
+                onClick = { /* Handle profile click */ }
+            )
+
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            ModernSwitchItem(
+                icon = Icons.Rounded.Notifications,
+                title = "Notifications",
+                checked = notificationsEnabled,
+                onCheckedChange = { notificationsEnabled = it }
+            )
+        }
+
+        // Logout button at the bottom
+        Button(
+            onClick = { showLogoutDialog = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BluePrimary
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = "Logout",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Logout", 
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+            }
+        }
+    }
 
     // Dialog confirmation handling
     if (showLogoutDialog) {
@@ -79,37 +137,11 @@ fun SettingScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(
-                    onClick = { showLogoutDialog = false }
-                ) {
+                OutlinedButton(onClick = { showLogoutDialog = false }) {
                     Text("Cancel")
                 }
             }
         )
-    }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Settings content here (can be expanded later)
-        Spacer(modifier = Modifier.weight(1f))
-        
-        // Logout button at the bottom
-        Button(
-            onClick = { showLogoutDialog = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp)
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = PinkLight
-            )
-        ) {
-            Text("Logout", style = MaterialTheme.typography.titleMedium)
-        }
     }
 }
 
