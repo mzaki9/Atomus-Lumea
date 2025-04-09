@@ -19,6 +19,7 @@ import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.components.BottomNavigationBar
 import com.example.lumea.ui.components.TopBar
 import com.example.lumea.ui.screens.camera.CameraScreen
+import com.example.lumea.ui.screens.camera.CameraViewModel
 import com.example.lumea.ui.screens.home.HomeScreen
 import com.example.lumea.ui.screens.login.LoginScreen
 import com.example.lumea.ui.screens.profile.ProfileScreen
@@ -52,6 +53,7 @@ fun AppNavigation() {
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
 
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(LocalContext.current))
+    val viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
 
     // Check authentication state and navigate accordingly
@@ -149,11 +151,11 @@ fun AppNavigation() {
 
             // Main app screens
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(viewModel = viewModel)
             }
 
             composable(Screen.Camera.route) {
-                CameraScreen()
+                CameraScreen(viewModel = viewModel)
             }
 
             composable(Screen.Profile.route) {
