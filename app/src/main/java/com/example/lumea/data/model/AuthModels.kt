@@ -29,3 +29,14 @@ data class UserData(
     val id: Int,
     val username: String
 )
+
+data class RegisterRequest(
+    val name:String,
+    val email:String,
+    val password:String,
+    val age: Int
+)
+data class RegisterResponse(
+    val isSuccess : Boolean,
+    val message: String
+)

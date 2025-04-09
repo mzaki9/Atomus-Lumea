@@ -65,10 +65,18 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     }
 
     fun register(email: String, password: String, name: String, age: Int) {
-        // For now, just log the values - implement actual registration later
-        Log.d("AuthViewModel", "Register: $email, $name, $age")
-        // For demo, you can just call login after registering
-        login(email, password)
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+
+            authRepository.register(email, password, name, age)
+                .onSuccess {
+                    // Jika registrasi berhasil, langsung login
+                    login(email, password)
+                }
+                .onFailure { error ->
+                    _loginState.value = LoginState.Error(error.message ?: "Registration failed")
+                }
+        }
     }
 
     fun logout() {

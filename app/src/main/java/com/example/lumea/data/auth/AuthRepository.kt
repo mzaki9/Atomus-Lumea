@@ -7,6 +7,7 @@ import android.content.Context
 import android.util.Log
 import com.example.lumea.data.api.NetworkModule
 import com.example.lumea.data.model.LoginRequest
+import com.example.lumea.data.model.RegisterRequest
 import com.example.lumea.data.model.RefreshTokenRequest
 import com.example.lumea.data.model.VerifyTokenResponse
 
@@ -47,6 +48,31 @@ class AuthRepository private constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun register(email: String, password: String, name: String, age: Int): Result<Boolean> {
+        Log.d(TAG, "Register started")
+        return try {
+            _authState.value = AuthState.Loading
+
+            val response = authApi.register(RegisterRequest(name, email, password, age))
+
+            if (response.isSuccessful) {
+                Log.d(TAG, "Register successful")
+                _authState.value = AuthState.NotAuthenticated // Belum login otomatis
+                Result.success(true)
+            } else {
+                val errorMessage = "Register failed: ${response.code()} ${response.message()}"
+                Log.e(TAG, errorMessage)
+                _authState.value = AuthState.Error(errorMessage)
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Register error: ${e.message}", e)
+            _authState.value = AuthState.Error(e.message ?: "Unknown error during registration")
+            Result.failure(e)
+        }
+    }
+
 
     suspend fun logout(): Result<Boolean> {
         Log.d(TAG, "Logout started")
