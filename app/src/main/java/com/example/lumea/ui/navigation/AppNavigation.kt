@@ -13,6 +13,7 @@ import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.components.BottomNavigationBar
 import com.example.lumea.ui.components.TopBar
 import com.example.lumea.ui.screens.camera.CameraScreen
+import com.example.lumea.ui.screens.camera.CameraViewModel
 import com.example.lumea.ui.screens.home.HomeScreen
 import com.example.lumea.ui.screens.login.LoginScreen
 import com.example.lumea.ui.screens.profile.ProfileScreen
@@ -49,6 +50,7 @@ fun AppNavigation() {
 
     val authViewModel: AuthViewModel =
         viewModel(factory = AuthViewModel.Factory(LocalContext.current))
+    val viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
 
     // Handle auth state changes
@@ -155,13 +157,13 @@ fun AppNavigation() {
 
             // Main Screens
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(viewModel = viewModel)
             }
             composable(Screen.FriendList.route) {
                 FriendListScreen()
             }
             composable(Screen.Camera.route) {
-                CameraScreen()
+                CameraScreen(viewModel = viewModel)
             }
             composable(Screen.Profile.route) {
                 ProfileScreen()
