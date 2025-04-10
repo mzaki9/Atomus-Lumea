@@ -27,6 +27,8 @@ object NetworkModule {
         .build()
 
     val authApi: AuthApi = retrofit.create(AuthApi::class.java)
+    val connectionApi: ConnectionApi = retrofit.create(ConnectionApi::class.java)
+    val locationApi: LocationApi = retrofit.create(LocationApi::class.java)
 //    val profileApi: ProfileApi = retrofit.create(ProfileApi::class.java)
 
     fun getProfileImageUrl(path: String): String {

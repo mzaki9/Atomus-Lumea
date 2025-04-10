@@ -12,6 +12,6 @@ data class Location(
     @SerializedName("longitude")
     val longitude: Double,
     
-    @SerializedName("updatedAt")
-    val updatedAt: String? = null
+    @SerializedName("lastCheckedDate")
+    val lastCheckedDate: String? = null
 )

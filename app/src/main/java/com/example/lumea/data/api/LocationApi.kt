@@ -1,4 +1,5 @@
 package com.example.lumea.data.api
+import com.example.lumea.data.model.Location
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
