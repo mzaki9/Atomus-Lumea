@@ -60,7 +60,10 @@ fun CameraScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        if (cameraPermissionState.status.isGranted) {
+
+        val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (cameraPermissionState.status.isGranted && locationPermissionState.status.isGranted) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -282,7 +285,7 @@ fun CameraScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "To measure your heart rate, we need access to your camera and flash",
+                    text = "To measure your heart rate, we need access to your camera,flash, and location",
                     textAlign = TextAlign.Center,
                     style = AppTypography.bodyLarge
                 )
@@ -290,7 +293,8 @@ fun CameraScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { cameraPermissionState.launchPermissionRequest() },
+                    onClick = { cameraPermissionState.launchPermissionRequest()
+                    locationPermissionState.launchPermissionRequest() },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
