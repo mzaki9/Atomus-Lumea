@@ -91,15 +91,20 @@ fun AppNavigation() {
         }
     }
 
-    val isExceptionScreen = currentRoute == Screen.Setting.route || currentRoute == Screen.FriendList.route
+    val isExceptionScreen = currentRoute == Screen.Setting.route || 
+                       currentRoute == Screen.FriendList.route || 
+                       currentRoute?.startsWith("detail_teman/") == true
+
     val isAuthScreen = currentRoute == Routes.LOGIN || currentRoute == Routes.REGISTER
     val isCameraScreen = currentRoute == Screen.Camera.route
     var screenName = ""
-    if (isExceptionScreen){
-        if (currentRoute==Screen.Setting.route){
-            screenName = "Setting";
-        }else if (currentRoute==Screen.FriendList.route){
-            screenName = "Friend List";
+    if (isExceptionScreen) {
+        if (currentRoute == Screen.Setting.route) {
+            screenName = "Setting"
+        } else if (currentRoute == Screen.FriendList.route) {
+            screenName = "Friend List"
+        } else if (currentRoute?.startsWith("detail_teman/") == true) {
+            screenName = "Friend Detail"
         }
     }
     Scaffold(
