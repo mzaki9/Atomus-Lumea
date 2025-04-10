@@ -1,11 +1,12 @@
+// File: ui/components/FriendTabSelector.kt
 package com.example.lumea.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 
 @Composable
 fun FriendTabSelector(
@@ -13,12 +14,23 @@ fun FriendTabSelector(
     onTabSelected: (Int) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        TabButton(text = "Search", selected = selectedTab == 0) { onTabSelected(0) }
-        Spacer(modifier = Modifier.width(12.dp))
-        TabButton(text = "Request", selected = selectedTab == 1) { onTabSelected(1) }
+        TabButton(
+            text = "Search",
+            selected = selectedTab == 0,
+            onClick = { onTabSelected(0) },
+            modifier = Modifier.weight(1f)
+        )
+        TabButton(
+            text = "Request",
+            selected = selectedTab == 1,
+            onClick = { onTabSelected(1) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -26,7 +38,8 @@ fun FriendTabSelector(
 private fun TabButton(
     text: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
@@ -34,7 +47,7 @@ private fun TabButton(
             containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
             contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        modifier = Modifier.weight(1f)
+        modifier = modifier
     ) {
         Text(text)
     }

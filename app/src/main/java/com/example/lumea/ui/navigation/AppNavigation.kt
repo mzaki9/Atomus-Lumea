@@ -20,6 +20,7 @@ import com.example.lumea.ui.screens.profile.ProfileScreen
 import com.example.lumea.ui.screens.register.RegisterScreen
 import com.example.lumea.ui.screens.setting.SettingScreen
 import com.example.lumea.ui.screens.friendlist.FriendListScreen
+import com.example.lumea.ui.screens.addfriends.AddFriendScreen
 
 object Routes {
     const val HOME = "home"
@@ -29,6 +30,7 @@ object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val FRIEND_LIST = "friend_list"
+    const val ADD_FRIEND = "add_friend"
 }
 
 
@@ -40,6 +42,7 @@ sealed class Screen(val route: String) {
     data object Login : Screen(Routes.LOGIN)
     data object Register : Screen(Routes.REGISTER)
     data object FriendList : Screen(Routes.FRIEND_LIST)
+    data object AddFriend : Screen(Routes.ADD_FRIEND)
 }
 
 @Composable
@@ -155,13 +158,18 @@ fun AppNavigation() {
                 )
             }
 
+            composable(Screen.FriendList.route) {
+                FriendListScreen(navController) // ✅ navController dipass
+            }
+            composable(Screen.AddFriend.route) {
+                AddFriendScreen() // ✅ navigasi ke halaman tambah teman
+            }
+
             // Main Screens
             composable(Screen.Home.route) {
                 HomeScreen(viewModel = viewModel)
             }
-            composable(Screen.FriendList.route) {
-                FriendListScreen()
-            }
+
             composable(Screen.Camera.route) {
                 CameraScreen(viewModel = viewModel)
             }

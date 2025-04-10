@@ -1,6 +1,5 @@
 package com.example.lumea.ui.screens.friendlist
 
-// Jetpack Compose UI
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,16 +16,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-
 import com.example.lumea.R
-
 import com.example.lumea.ui.components.FriendCard
-import com.example.lumea.ui.theme.LumeaTheme
+import com.example.lumea.ui.navigation.Screen
 
 @Composable
-fun FriendListScreen(navController: NavController = rememberNavController()) {
+fun FriendListScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,8 +44,10 @@ fun FriendListScreen(navController: NavController = rememberNavController()) {
                 )
             )
 
-            // Tombol tambah teman
-            IconButton(onClick = { navController.navigate("tambah_teman") }) {
+            // ✅ Tombol tambah teman, navigasi ke AddFriendScreen
+            IconButton(onClick = {
+                navController.navigate(Screen.AddFriend.route)
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.tambah_teman),
                     contentDescription = "Tambah Teman",
@@ -59,8 +56,9 @@ fun FriendListScreen(navController: NavController = rememberNavController()) {
                 )
             }
         }
-        data class Friend(val id: String, val name: String)
 
+        // Dummy list teman
+        data class Friend(val id: String, val name: String)
         val friends = listOf(
             Friend(id = "1", name = "HUGO SABAM AUGUSTO"),
             Friend(id = "2", name = "ALBERT GHAZALY"),
@@ -73,23 +71,12 @@ fun FriendListScreen(navController: NavController = rememberNavController()) {
         ) {
             items(friends) { friend ->
                 FriendCard(
-                    id = friend.id, // ✅ Diberikan
+                    id = friend.id,
                     name = friend.name
                 ) {
-                    // Aksi ketika diklik, misal:
                     navController.navigate("detail_teman/${friend.id}")
                 }
             }
         }
     }
 }
-
-
-@Preview(showBackground = true)
-@Composable
-fun FriendListScreenPreview() {
-    LumeaTheme {
-        FriendListScreen() // navController default
-    }
-}
-

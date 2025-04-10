@@ -6,6 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
+
 interface LocationApi {
     @POST("api/location")
     suspend fun sendLocation(@Header("Authorization") authHeader: String, @Body location: Location): Response<Void>
