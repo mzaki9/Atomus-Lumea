@@ -47,3 +47,8 @@ data class ApiResponse(
     @SerializedName("error")
     val error: String? = null
 )
+
+data class User(
+    val id: String,
+    val name: String
+)
