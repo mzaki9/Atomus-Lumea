@@ -19,6 +19,8 @@ import androidx.navigation.NavController
 import com.example.lumea.R
 import com.example.lumea.ui.components.FriendCard
 import com.example.lumea.ui.navigation.Screen
+import androidx.compose.foundation.clickable
+
 
 @Composable
 fun FriendListScreen(navController: NavController) {
@@ -72,10 +74,12 @@ fun FriendListScreen(navController: NavController) {
             items(friends) { friend ->
                 FriendCard(
                     id = friend.id,
-                    name = friend.name
-                ) {
-                    navController.navigate("detail_teman/${friend.id}")
-                }
+                    name = friend.name,
+                    onClick = { friendId ->
+                        println("Navigating to friend detail: $friendId")
+                        navController.navigate("detail_teman/$friendId")
+                    }
+                )
             }
         }
     }

@@ -7,7 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
+import com.example.lumea.data.auth.AuthRepository
+import com.example.lumea.data.auth.TokenManager
 import com.example.lumea.ui.auth.AuthUiState
 import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.components.BottomNavigationBar
@@ -21,6 +25,7 @@ import com.example.lumea.ui.screens.register.RegisterScreen
 import com.example.lumea.ui.screens.setting.SettingScreen
 import com.example.lumea.ui.screens.friendlist.FriendListScreen
 import com.example.lumea.ui.screens.addfriends.AddFriendScreen
+import com.example.lumea.ui.screens.friend.FriendScreen
 
 object Routes {
     const val HOME = "home"
@@ -43,6 +48,7 @@ sealed class Screen(val route: String) {
     data object Register : Screen(Routes.REGISTER)
     data object FriendList : Screen(Routes.FRIEND_LIST)
     data object AddFriend : Screen(Routes.ADD_FRIEND)
+    data class FriendDetail(val friendId: String) : Screen("detail_teman/$friendId")
 }
 
 @Composable
@@ -55,6 +61,8 @@ fun AppNavigation() {
         viewModel(factory = AuthViewModel.Factory(LocalContext.current))
     val viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
+
+    val context = LocalContext.current
 
     // Handle auth state changes
     LaunchedEffect(authState) {
@@ -156,6 +164,16 @@ fun AppNavigation() {
                         }
                     }
                 )
+            }
+
+            composable(
+                route = "detail_teman/{friendId}",
+                arguments = listOf(
+                    navArgument("friendId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val friendId = backStackEntry.arguments?.getString("friendId") ?: ""
+                FriendScreen(friendId = friendId)
             }
 
             composable(Screen.FriendList.route) {

@@ -35,4 +35,8 @@ object NetworkModule {
         return "${BASE_URL}uploads/profile-picture/$path"
     }
 
+    fun provideUserApi(): UserApi {
+        return retrofit.create(UserApi::class.java)
+    }
+
 }
