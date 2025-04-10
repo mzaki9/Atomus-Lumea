@@ -27,20 +27,17 @@ data class ConnectionResponse(
     val accept: Boolean
 )
 
-data class Connection(
-    @SerializedName("connectionId")
-    val connectionId: Int,
-    
-    @SerializedName("friendId")
-    val friendId: Int,
-    
-    @SerializedName("connectedAt")
-    val connectedAt: String
+data class ConnectionsResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("data") val data: List<Connection>? = null,
+    @SerializedName("message") val message: String? = null
 )
 
-data class ConnectionsResponse(
-    @SerializedName("data")
-    val connections: List<Connection>
+data class Connection(
+    @SerializedName("connectionId") val connectionId: Int,
+    @SerializedName("friendId") val friendId: Int,
+    @SerializedName("friendName") val friendName: String?,
+    @SerializedName("connectedAt") val connectedAt: String
 )
 
 data class ApiResponse(

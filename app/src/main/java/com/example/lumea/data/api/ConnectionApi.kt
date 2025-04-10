@@ -14,7 +14,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ConnectionApi {
-    @POST("api/connection/request")
+    @POST("api/connections/request")
     suspend fun sendConnectionRequest(
         @Header("Authorization") authHeader: String, 
         @Body request: ConnectionRequest
@@ -26,19 +26,19 @@ interface ConnectionApi {
         @Body request: SearchRequest
     ): SearchResponse
 
-    @POST("api/connection/respond")
+    @POST("api/connections/respond")
     suspend fun respondToConnectionRequest(
         @Header("Authorization") authHeader: String, 
         @Body response: ConnectionResponse
     ): Response<ApiResponse>
 
-    @GET("api/connection")
+    @GET("api/connections")
     suspend fun getConnections(
         @Header("Authorization") authHeader: String,
         @Query("userId") userId: Int
     ): Response<ConnectionsResponse>
     
-    @GET("api/connection/requests")
+    @GET("api/connections/requests")
     suspend fun getConnectionRequests(
         @Header("Authorization") authHeader: String
     ): Response<List<ConnectionRequest>>
