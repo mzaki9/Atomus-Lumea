@@ -1,6 +1,7 @@
 package com.example.lumea.data.api
 
 import com.example.lumea.data.model.HealthCheckInput
+import com.example.lumea.data.model.HealthHistoryResponse
 import com.example.lumea.data.model.HealthResponse
 import retrofit2.Response
 import retrofit2.http.*
@@ -28,4 +29,10 @@ interface HealthApi {
     suspend fun deleteHealthData(
         @Header("Authorization") authHeader: String
     ): Response<HealthResponse>
+    
+    @GET("api/health/history")
+    suspend fun getHealthHistory(
+        @Header("Authorization") authHeader: String,
+        @Query("userId") userId: Int
+    ): Response<HealthHistoryResponse>
 }

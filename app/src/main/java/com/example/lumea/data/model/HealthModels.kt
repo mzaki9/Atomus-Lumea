@@ -49,3 +49,14 @@ data class HealthData(
     @SerializedName("date")
     val date: String
 )
+
+data class HealthHistoryResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    
+    @SerializedName("message")
+    val message: String? = null,
+    
+    @SerializedName("data")
+    val data: List<HealthData>? = null
+)

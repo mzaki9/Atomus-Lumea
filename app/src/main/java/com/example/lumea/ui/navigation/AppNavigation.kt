@@ -1,31 +1,35 @@
 package com.example.lumea.ui.navigation
 
+import ProfileScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.lumea.data.auth.AuthRepository
-import com.example.lumea.data.auth.TokenManager
 import com.example.lumea.ui.auth.AuthUiState
 import com.example.lumea.ui.auth.AuthViewModel
 import com.example.lumea.ui.components.BottomNavigationBar
 import com.example.lumea.ui.components.TopBar
+import com.example.lumea.ui.screens.addfriends.AddFriendScreen
 import com.example.lumea.ui.screens.camera.CameraScreen
 import com.example.lumea.ui.screens.camera.CameraViewModel
+import com.example.lumea.ui.screens.friend.FriendScreen
+import com.example.lumea.ui.screens.friendlist.FriendListScreen
 import com.example.lumea.ui.screens.home.HomeScreen
 import com.example.lumea.ui.screens.login.LoginScreen
-import com.example.lumea.ui.screens.profile.ProfileScreen
 import com.example.lumea.ui.screens.register.RegisterScreen
 import com.example.lumea.ui.screens.setting.SettingScreen
-import com.example.lumea.ui.screens.friendlist.FriendListScreen
-import com.example.lumea.ui.screens.addfriends.AddFriendScreen
-import com.example.lumea.ui.screens.friend.FriendScreen
 
 object Routes {
     const val HOME = "home"

@@ -1,30 +1,85 @@
-package com.example.lumea.ui.screens.profile
+// Update the ProfileScreen to display the health history chart
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumea.R
 import com.example.lumea.ui.components.GradientCardBackground
+import com.example.lumea.ui.components.HealthHistoryChart
+import com.example.lumea.ui.components.HealthHistoryCharts
+import com.example.lumea.ui.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModel.Factory(LocalContext.current)
+    )
+) {
+    // Collect states from the ViewModel
+    val userData by viewModel.userData.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // Health history states
+    val healthHistory by viewModel.healthHistory.collectAsState()
+    val historyLoading by viewModel.historyLoading.collectAsState()
+    val historyError by viewModel.historyError.collectAsState()
+
+    // Fetch data when the screen is displayed
+    LaunchedEffect(key1 = true) {
+        viewModel.fetchUserProfile()
+    }
+
+    // Fetch health history when user data is available
+    LaunchedEffect(key1 = userData) {
+        if (userData != null) {
+            viewModel.fetchHealthHistory()
+        }
+    }
+
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -34,169 +89,285 @@ fun ProfileScreen() {
             height = 400.dp
         )
 
-        // Content Column (di atas background)
+        // Content Column (over the background)
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile Information (layer atas dengan background transparan)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
-                color = Color.Transparent,
-                shadowElevation = 0.dp
-            ) {
+            // Loading indicator
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(top = 32.dp)
+                        .size(50.dp),
+                    color = Color.White
+                )
+            }
+
+            // Error message
+            error?.let {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Text(
+                        text = it,
+                        color = Color.Red,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = { viewModel.fetchUserProfile() }
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "BOWO ALPENLIEBE",
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(16.dp)) // Tambahkan jarak 8 dp di bawah nama
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Phone,
-                                    contentDescription = "Phone",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Text(
-                                    text = "08XXXXXXXX",
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Email,
-                                    contentDescription = "Email",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Text(
-                                    text = "em*****@gmail.com",
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(
-                                    Icons.Filled.LocationOn,
-                                    contentDescription = "Latest Location",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Text(
-                                    text = "Latest Location",
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                                )
-                            }
-                        }
+                        Icon(imageVector = Icons.Default.Refresh, contentDescription = "Retry")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground), // Replace with your actual icon
-                            contentDescription = "Profile Icon",
-                            modifier = Modifier.size(48.dp)
-                        )
+                        Text("Retry")
                     }
                 }
             }
 
-            // Graphical History Section (layer atas dengan background putih)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp)
-                    .fillMaxHeight(),
-                color = Color.White,
-                shadowElevation = 2.dp
-            ) {
-                Column( // Ganti LazyColumn menjadi Column
-                    modifier = Modifier.padding(top= 16.dp,start= 16.dp,end= 16.dp)
+            // Profile Information (transparent layer on top)
+            if (userData != null && !isLoading) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
+                    color = Color.Transparent,
+                    shadowElevation = 0.dp
                 ) {
-                    Text(
-                        text = "Riwayat Grafikal",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    LazyColumn { // Pindahkan LazyColumn ke dalam Column
-                        // Tambahkan item-item riwayat grafikal di sini
-                        items(count = 10) { index -> // Contoh menambahkan 10 item
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.White,
-                                shadowElevation = 1.dp,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(225.dp)
-                                    .padding(bottom = 8.dp)
+                    // ... existing profile information code ...
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f)
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(text = "Riwayat Item ${index + 1} (Coming Soon)", color = Color.Black)
+                                userData?.profile?.let { profile ->
+                                    Text(
+                                        text = profile.name.uppercase(),
+                                        style = MaterialTheme.typography.headlineSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Email,
+                                            contentDescription = "Email",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Text(
+                                            text = profile.email,
+                                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Phone,
+                                            contentDescription = "Age",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Text(
+                                            text = "Age: ${profile.age}",
+                                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                userData?.location?.let { location ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.LocationOn,
+                                            contentDescription = "Latest Location",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Text(
+                                            text = "Lat: ${location.latitude}, Long: ${location.longitude}",
+                                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                contentDescription = "Profile Icon",
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                    }
+                }
+
+                // Health Data Card
+                userData?.health?.let { health ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Current Health Status",
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Heart Rate",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        text = "${health.heartRate ?: "N/A"} BPM",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = "Blood Oxygen",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        text = "${health.bloodOxygen ?: "N/A"}%",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = "Status",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        text = health.status ?: "Unknown",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    )
                                 }
                             }
                         }
-                        item {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.White,
-                                shadowElevation = 1.dp,
+                    }
+                }
+
+                // Health History Section with Chart
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .fillMaxHeight(),
+                    color = Color.White,
+                    shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                    shadowElevation = 2.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 32.dp)
+                    ) {
+                        Text(
+                            text = "Health History",
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        // Health history loading indicator
+                        if (historyLoading) {
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(150.dp)
-                                    .padding(bottom = 8.dp)
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(text = "Riwayat Tambahan 1 (Coming Soon)", color = Color.Black)
-                                    // Tambahkan grafik lain di sini
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(40.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        // Error message for health history
+                        else if (historyError != null) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = historyError ?: "",
+                                    color = Color.Red,
+                                    textAlign = TextAlign.Center
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Button(
+                                    onClick = { viewModel.fetchHealthHistory() }
+                                ) {
+                                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "Retry")
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Retry")
                                 }
                             }
                         }
-                        item {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.White,
-                                shadowElevation = 1.dp,
+                        // Display health history chart
+                        else {
+                            HealthHistoryCharts(
+                                healthData = healthHistory,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(150.dp)
-                                    .padding(bottom = 8.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(text = "Riwayat Tambahan 2 (Coming Soon)", color = Color.Black)
-                                }
-                            }
+                                    .padding(vertical = 8.dp)
+                            )
+                            
+                            Text(
+                                text = "Your health metrics over time",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                            )
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen()
 }

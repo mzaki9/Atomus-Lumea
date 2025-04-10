@@ -153,4 +153,41 @@ class HealthRepository(
             _isLoading.value = false
         }
     }
+
+
+    private val _healthHistory = MutableStateFlow<List<HealthData>>(emptyList())
+    val healthHistory: StateFlow<List<HealthData>> = _healthHistory
+
+    suspend fun getHealthHistory(userId: Int): Result<List<HealthData>> {
+        return try {
+            _isLoading.value = true
+            _error.value = null
+            
+            val token = tokenManager.getAccessToken() ?: return Result.failure(Exception("No authentication token available"))
+            val response = healthApi.getHealthHistory("Bearer $token", userId)
+            
+            if (response.isSuccessful) {
+                val historyResponse = response.body()
+                if (historyResponse?.success == true) {
+                    val historyData = historyResponse.data ?: emptyList()
+                    _healthHistory.value = historyData
+                    Result.success(historyData)
+                } else {
+                    val errorMsg = historyResponse?.message ?: "Unknown error occurred"
+                    _error.value = errorMsg
+                    Result.failure(Exception(errorMsg))
+                }
+            } else {
+                val errorMsg = "Failed to fetch health history: ${response.code()} ${response.message()}"
+                _error.value = errorMsg
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error retrieving health history: ${e.message}", e)
+            _error.value = e.message ?: "Unknown error occurred"
+            Result.failure(e)
+        } finally {
+            _isLoading.value = false
+        }
+    }
 }
