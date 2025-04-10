@@ -1,0 +1,36 @@
+package com.example.lumea.data.api
+import com.example.lumea.data.model.ApiResponse
+import com.example.lumea.data.model.ConnectionRequest
+import com.example.lumea.data.model.ConnectionResponse
+import com.example.lumea.data.model.ConnectionsResponse
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Query
+
+interface ConnectionApi {
+    @POST("api/connection/request")
+    suspend fun sendConnectionRequest(
+        @Header("Authorization") authHeader: String, 
+        @Body request: ConnectionRequest
+    ): Response<ApiResponse>
+
+    @POST("api/connection/respond")
+    suspend fun respondToConnectionRequest(
+        @Header("Authorization") authHeader: String, 
+        @Body response: ConnectionResponse
+    ): Response<ApiResponse>
+
+    @GET("api/connection")
+    suspend fun getConnections(
+        @Header("Authorization") authHeader: String,
+        @Query("userId") userId: Int
+    ): Response<ConnectionsResponse>
+    
+    @GET("api/connection/requests")
+    suspend fun getConnectionRequests(
+        @Header("Authorization") authHeader: String
+    ): Response<List<ConnectionRequest>>
+}

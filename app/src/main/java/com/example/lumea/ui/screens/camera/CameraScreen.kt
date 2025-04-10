@@ -32,6 +32,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
+
 fun CameraScreen(
     viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
 ) {
