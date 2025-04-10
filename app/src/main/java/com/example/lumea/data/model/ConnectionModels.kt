@@ -16,6 +16,9 @@ data class ConnectionRequest(
     val createdAt: String? = null
 )
 
+data class SearchRequest(val name: String)
+
+
 data class ConnectionResponse(
     @SerializedName("requestId")
     val requestId: Int,
@@ -51,4 +54,9 @@ data class ApiResponse(
 data class User(
     val id: String,
     val name: String
+)
+
+data class SearchResponse(
+    @SerializedName("data")
+    val data: List<User>
 )

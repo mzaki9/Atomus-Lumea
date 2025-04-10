@@ -3,6 +3,9 @@ import com.example.lumea.data.model.ApiResponse
 import com.example.lumea.data.model.ConnectionRequest
 import com.example.lumea.data.model.ConnectionResponse
 import com.example.lumea.data.model.ConnectionsResponse
+import com.example.lumea.data.model.SearchRequest
+import com.example.lumea.data.model.SearchResponse
+import com.example.lumea.data.model.User
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -16,6 +19,12 @@ interface ConnectionApi {
         @Header("Authorization") authHeader: String, 
         @Body request: ConnectionRequest
     ): Response<ApiResponse>
+
+    @POST("api/connections/search")
+    suspend fun searchUsers(
+        @Header("Authorization") authHeader: String,
+        @Body request: SearchRequest
+    ): SearchResponse
 
     @POST("api/connection/respond")
     suspend fun respondToConnectionRequest(
