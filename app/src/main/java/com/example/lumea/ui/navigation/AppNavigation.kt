@@ -109,6 +109,7 @@ fun AppNavigation() {
     Scaffold(
         topBar = {
             if (!isAuthScreen && !isCameraScreen) {
+                val userName by viewModel.userName.collectAsState()
                 TopBar(
                     onGroupClick = {
                         navController.navigate(Screen.FriendList.route) {
@@ -124,7 +125,8 @@ fun AppNavigation() {
                     screenName = screenName,
                     onBackClick = {
                         navController.popBackStack()
-                    }
+                    },
+                    username = userName
                 )
             }
         },

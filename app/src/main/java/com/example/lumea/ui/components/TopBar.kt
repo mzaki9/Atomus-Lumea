@@ -23,7 +23,8 @@ fun TopBar(
     onSettingsClick: () -> Unit,
     isExceptionScreen: Boolean = false,
     screenName: String = "",
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    username: String = "User"
 ) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
@@ -58,7 +59,7 @@ fun TopBar(
                         color = Color.Black
                     )
                     Text(
-                        text = "Bowo",
+                        text = username,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black

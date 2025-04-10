@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lumea.data.api.LocationApi
 import com.example.lumea.data.api.NetworkModule
+import com.example.lumea.data.api.UserApi
+import com.example.lumea.data.auth.AuthRepository
 import com.example.lumea.data.auth.TokenManager
 import com.example.lumea.data.model.HealthCheckInput
 import com.example.lumea.data.model.Location
@@ -23,6 +25,7 @@ import com.example.lumea.data.repository.PpgRepository
 import com.example.lumea.data.sensor.CameraManager
 import com.example.lumea.data.sensor.CameraManager.CameraState
 import com.example.lumea.domain.HeartRateCalculator
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +39,8 @@ class CameraViewModel(
     private val context: Context,
     private val locationApi: LocationApi = NetworkModule.locationApi,
     private val tokenManager: TokenManager,
-    private val healthRepository: HealthRepository
+    private val healthRepository: HealthRepository,
+    private val userApi: UserApi = NetworkModule.provideUserApi()
 ) : ViewModel() {
 
     val cameraState: StateFlow<CameraManager.CameraState> = cameraManager.cameraState
@@ -71,6 +75,9 @@ class CameraViewModel(
     // Status messages
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> = _statusMessage
+
+    private val _userName = MutableStateFlow("User")
+    val userName: StateFlow<String> = _userName.asStateFlow()
 
     init {
             viewModelScope.launch {
@@ -121,6 +128,8 @@ class CameraViewModel(
                 }
             }
         }
+        Log.d("CameraViewModel", "Initializing CameraViewModel, about to fetch user name")
+        fetchUserName()
     }
 
     fun startMeasurement(lifecycleOwner: LifecycleOwner) {
@@ -289,6 +298,41 @@ class CameraViewModel(
         super.onCleared()
         ppgRepository.shutdownCamera()
         healthRiskPredictor.close() // Close HealthRiskPredictor when ViewModel is cleared
+    }
+
+    private fun fetchUserName() {
+        viewModelScope.launch {
+            try {
+                val token = tokenManager.getAccessToken()
+                if (!token.isNullOrEmpty()) {
+                    val authRepository = AuthRepository.getInstance(context)
+                    var userId = authRepository.currentUserId
+
+                    if (userId == null) {
+                        Log.d("CameraViewModel", "User ID not available yet, will retry...")
+                        repeat(3) { attempt ->
+                            if (userId == null) {
+                                delay(1000)
+                                userId = authRepository.currentUserId
+                                Log.d("CameraViewModel", "Retry attempt ${attempt+1}, userId: $userId")
+                            }
+                        }
+                    }
+
+                    userId?.let {
+                        val response = userApi.getUserData("Bearer $token", it.toString())
+                        if (response.isSuccessful) {
+                            response.body()?.data?.profile?.name?.let { name ->
+                                _userName.value = name
+                                Log.d("CameraViewModel", "Fetched user name: $name")
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CameraViewModel", "Error fetching user name: ${e.message}")
+            }
+        }
     }
 
     class Factory(private val applicationContext: Context) : ViewModelProvider.Factory {
