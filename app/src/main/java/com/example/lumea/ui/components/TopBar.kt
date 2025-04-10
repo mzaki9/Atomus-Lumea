@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.lumea.ui.common.ObserveUsername
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,8 +25,10 @@ fun TopBar(
     isExceptionScreen: Boolean = false,
     screenName: String = "",
     onBackClick: () -> Unit = {},
-    username: String = "User"
 ) {
+
+    val username = ObserveUsername()
+
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         colors = TopAppBarDefaults.topAppBarColors(

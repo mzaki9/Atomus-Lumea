@@ -9,15 +9,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.example.lumea.data.auth.UsernameManager
 import com.example.lumea.services.TokenServiceManager
 import com.example.lumea.ui.navigation.AppNavigation
 import com.example.lumea.ui.theme.LumeaTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+         // Initialize username manager
+        val usernameManager = UsernameManager.getInstance(applicationContext)
+        
+        // Fetch username at app start
+        lifecycleScope.launch {
+            usernameManager.fetchUsername()
+        }
+        
         enableEdgeToEdge()
 
         // Start the token validation service

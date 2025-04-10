@@ -34,6 +34,12 @@ class AuthRepository private constructor(
             if (response.isSuccessful) {
                 response.body()?.let { authResponse ->
                     tokenManager.saveTokens(authResponse.accessToken, authResponse.refreshToken)
+                    UsernameManager.getInstance(context).fetchUsername()
+                    verifyToken().onSuccess { verifyResponse ->
+                        currentUserId = verifyResponse.user.id
+                        Log.d(TAG, "Setting current user ID: $currentUserId")
+                    }
+                    
                     _authState.value = AuthState.Authenticated
                     return Result.success(true)
                 }
