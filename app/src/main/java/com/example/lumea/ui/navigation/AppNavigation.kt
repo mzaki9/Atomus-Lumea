@@ -61,7 +61,6 @@ fun AppNavigation() {
         viewModel(factory = AuthViewModel.Factory(LocalContext.current))
     val viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
-
     val context = LocalContext.current
 
     // Handle auth state changes
@@ -190,7 +189,7 @@ fun AppNavigation() {
 
             // Main Screens
             composable(Screen.Home.route) {
-                HomeScreen(viewModel = viewModel)
+                HomeScreen(cameraViewModel = viewModel)
             }
 
             composable(Screen.Camera.route) {

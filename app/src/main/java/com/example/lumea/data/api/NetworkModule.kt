@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object NetworkModule {
     private const val BASE_URL = "http://10.0.2.2:3000/"
+    // private const val BASE_URL = "https://lumea-backend-production.up.railway.app/"
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -30,6 +31,9 @@ object NetworkModule {
     val connectionApi: ConnectionApi = retrofit.create(ConnectionApi::class.java)
     val locationApi: LocationApi = retrofit.create(LocationApi::class.java)
 //    val profileApi: ProfileApi = retrofit.create(ProfileApi::class.java)
+
+    val healthApi: HealthApi = retrofit.create(HealthApi::class.java)
+
 
     fun getProfileImageUrl(path: String): String {
         return "${BASE_URL}uploads/profile-picture/$path"

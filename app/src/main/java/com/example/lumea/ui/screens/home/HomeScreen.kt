@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,17 +44,34 @@ import com.example.lumea.ui.screens.camera.CameraViewModel
 import com.example.lumea.ui.theme.AppTypography
 import com.example.lumea.ui.theme.BluePrimary
 import com.example.lumea.ui.theme.BlueSecondary
+import com.example.lumea.ui.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: CameraViewModel
+    cameraViewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
 ) {
-    // Collect health metrics from ViewModel
-    val heartRate by viewModel.heartRate.collectAsState()
-    val respiratoryRate by viewModel.respiratoryRate.collectAsState()
-    val spo2 by viewModel.spo2.collectAsState()
-    val riskClass by viewModel.riskClass.collectAsState()
+    // Create HomeViewModel to fetch health data
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModel.Factory(LocalContext.current, cameraViewModel)
+    )
     
+    // Add state collection for HomeViewModel
+    val isLoading by homeViewModel.isLoading.collectAsState()
+    val statusMessage by homeViewModel.statusMessage.collectAsState()
+    val latestHealthData by homeViewModel.latestHealthData.collectAsState()
+    
+    // Refresh data when the screen is first composed
+    LaunchedEffect(Unit) {
+        homeViewModel.fetchLatestHealthData()
+    }
+    
+    // Collect health metrics from CameraViewModel - keeping the existing UI code as is
+    val heartRate by cameraViewModel.heartRate.collectAsState()
+    val respiratoryRate by cameraViewModel.respiratoryRate.collectAsState()
+    val spo2 by cameraViewModel.spo2.collectAsState()
+    val riskClass by cameraViewModel.riskClass.collectAsState()
+    
+    // Rest of the existing code from HomeScreen...
     // Determine health condition based on risk class
     val healthCondition = when (riskClass) {
         1 -> "Tidak Sehat"
@@ -333,5 +351,5 @@ fun HealthStatusCard(
 fun HomeScreenPreview() {
     // For preview only, create a dummy viewModel
     val previewViewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
-    HomeScreen(viewModel = previewViewModel)
+    HomeScreen(cameraViewModel = previewViewModel)
 }

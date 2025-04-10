@@ -1,5 +1,7 @@
 package com.example.lumea.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class UserDataComplete(
     val profile: UserProfile?,
     val health: UserHealth?,
@@ -20,9 +22,9 @@ data class UserProfile(
 )
 
 data class UserHealth(
-    val heartRate: Int?,
-    val bloodOxygen: Float?,
-    val respiratoryRate: Float?,
+    @SerializedName("bpm") val heartRate: Int?,
+    @SerializedName("spo2") val bloodOxygen: Float?,
+    @SerializedName("resp_rate") val respiratoryRate: Float?,
     val status: String?
 )
 
