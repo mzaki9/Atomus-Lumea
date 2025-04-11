@@ -80,9 +80,9 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun logout(cameraViewModel: CameraViewModel? = null) {
+    fun logout(cameraViewModel: CameraViewModel) {
         viewModelScope.launch {
-            cameraViewModel?.resetHealthData()
+            cameraViewModel.resetHealthData()
             authRepository.logout()
         }
     }

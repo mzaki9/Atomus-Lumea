@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddChart
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
@@ -28,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +50,7 @@ import com.example.lumea.R
 import com.example.lumea.ui.components.GradientCardBackground
 import com.example.lumea.ui.components.HealthHistoryChart
 import com.example.lumea.ui.components.HealthHistoryCharts
+import com.example.lumea.ui.navigation.Screen
 import com.example.lumea.ui.viewmodel.ProfileViewModel
 
 @Composable
@@ -141,7 +144,6 @@ fun ProfileScreen(
                     color = Color.Transparent,
                     shadowElevation = 0.dp
                 ) {
-                    // ... existing profile information code ...
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
@@ -253,7 +255,6 @@ fun ProfileScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Health history loading indicator
                         if (historyLoading) {
                             Box(
                                 modifier = Modifier
@@ -267,46 +268,57 @@ fun ProfileScreen(
                                 )
                             }
                         }
-                        // Error message for health history
-                        else if (historyError != null) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = historyError ?: "",
-                                    color = Color.Red,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Button(
-                                    onClick = { viewModel.fetchHealthHistory() }
-                                ) {
-                                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "Retry")
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Retry")
-                                }
-                            }
-                        }
-                        // Display health history chart
                         else {
-                            HealthHistoryCharts(
-                                healthData = healthHistory,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                            )
-                            
-                            Text(
-                                text = "Your health metrics over time",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-                            )
+                            if (healthHistory.isEmpty()) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AddChart,
+                                        contentDescription = "No Data",
+                                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(64.dp)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    Text(
+                                        text = "No health history available yet",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    Text(
+                                        text = "Start logging your health data to see trends over time",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            } else {
+                                // Display chart if health history data exists
+                                HealthHistoryCharts(
+                                    healthData = healthHistory,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                )
+                                
+                                Text(
+                                    text = "Your health metrics over time",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                                )
+                            }
                         }
                     }
                 }

@@ -59,7 +59,6 @@ fun HomeScreen(
     val isLoading by homeViewModel.isLoading.collectAsState()
     val statusMessage by homeViewModel.statusMessage.collectAsState()
     val latestHealthData by homeViewModel.latestHealthData.collectAsState()
-    
     // Refresh data when the screen is first composed
     LaunchedEffect(key1 = Unit) {
         homeViewModel.clearLatestHealthData()
@@ -72,7 +71,6 @@ fun HomeScreen(
     val spo2 by cameraViewModel.spo2.collectAsState()
     val riskClass by cameraViewModel.riskClass.collectAsState()
     
-    // Rest of the existing code from HomeScreen...
     // Determine health condition based on risk class
     val healthCondition = when (riskClass) {
         1 -> "Tidak Sehat"
@@ -304,11 +302,19 @@ fun HealthStatusCard(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = healthCondition,
+                            text = if (healthCondition != "---") healthCondition else "No Data",
                             style = AppTypography.titleLarge,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
+                        
+                        if (healthCondition == "---") {
+                            Text(
+                                text = "Take a measurement to see your status",
+                                style = AppTypography.bodySmall,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -338,9 +344,8 @@ fun HealthStatusCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Last updated text
             Text(
-                text = "Last updated: Just now",
+                text = if (heartRate > 0) "Last updated: Just now" else "No measurements yet",
                 style = AppTypography.bodySmall,
                 color = Color.White.copy(alpha = 0.7f)
             )
