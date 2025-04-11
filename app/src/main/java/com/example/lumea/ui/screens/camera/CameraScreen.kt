@@ -171,7 +171,7 @@ fun CameraScreen(
                         ) {
                             // Track the elapsed time since measurement started
                             val elapsedTime = remember { mutableStateOf(0f) }
-                            val totalDuration = 60f // 60 seconds / 1 minute
+                            val totalDuration = 30f // 60 seconds / 1 minute
                             
                             // Update elapsed time animation
                             LaunchedEffect(cameraState) {
@@ -182,7 +182,6 @@ fun CameraScreen(
                                 }
                             }
                             
-                            // Show progress as a percentage of 1 minute
                             CircularProgressIndicator(
                                 progress = { (elapsedTime.value / totalDuration).coerceIn(0f, 1f) },
                                 modifier = Modifier.size(32.dp),
@@ -204,7 +203,7 @@ fun CameraScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                 )
-                            }
+                            }   
                         }
                     }
                 
