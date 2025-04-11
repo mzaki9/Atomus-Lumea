@@ -7,10 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,29 +33,23 @@ import com.example.lumea.ui.screens.login.LoginScreen
 import com.example.lumea.ui.screens.register.RegisterScreen
 import com.example.lumea.ui.screens.setting.SettingScreen
 
-object Routes {
-    const val HOME = "home"
-    const val CAMERA = "camera"
-    const val PROFILE = "profile"
-    const val SETTING = "setting"
-    const val LOGIN = "login"
-    const val REGISTER = "register"
-    const val FRIEND_LIST = "friend_list"
-    const val ADD_FRIEND = "add_friend"
-}
+
 
 
 sealed class Screen(val route: String) {
-    data object Home : Screen(Routes.HOME)
-    data object Camera : Screen(Routes.CAMERA)
-    data object Profile : Screen(Routes.PROFILE)
-    data object Setting : Screen(Routes.SETTING)
-    data object Login : Screen(Routes.LOGIN)
-    data object Register : Screen(Routes.REGISTER)
-    data object FriendList : Screen(Routes.FRIEND_LIST)
-    data object AddFriend : Screen(Routes.ADD_FRIEND)
-    data class FriendDetail(val friendId: String) : Screen("detail_teman/$friendId")
+    object Login : Screen("login")
+    object Register : Screen("register")
+    object Home : Screen("home")
+    object Camera : Screen("camera")
+    object Profile : Screen("profile")
+    object Setting : Screen("setting")
+    object FriendList : Screen("friend_list")
+    object AddFriend : Screen("add_friend")
+    object FriendDetail : Screen("detail_teman/{friendId}") {
+        fun createRoute(friendId: String) = "detail_teman/$friendId"
+    }
 }
+
 
 @Composable
 fun AppNavigation() {
@@ -63,53 +59,33 @@ fun AppNavigation() {
 
     val authViewModel: AuthViewModel =
         viewModel(factory = AuthViewModel.Factory(LocalContext.current))
-    val viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
+    val cameraViewModel: CameraViewModel =
+        viewModel(factory = CameraViewModel.Factory(LocalContext.current))
     val authState by authViewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     // Handle auth state changes
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthUiState.Authenticated -> {
-                if (currentRoute == Routes.LOGIN || currentRoute == Routes.REGISTER) {
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
+    HandleAuthState(authState, currentRoute, navController)
 
-            is AuthUiState.NotAuthenticated -> {
-                if (currentRoute != Routes.LOGIN && currentRoute != Routes.REGISTER) {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
+    val isExceptionScreen = remember(currentRoute) {
+        currentRoute == Screen.Setting.route ||
+                currentRoute == Screen.FriendList.route ||
+                currentRoute.startsWith(Screen.FriendDetail.route.substringBefore("{"))
+    }
 
-            else -> Unit
+    val isAuthScreen = remember(currentRoute) {
+        currentRoute == Screen.Login.route || currentRoute == Screen.Register.route
+    }
+    val isCameraScreen = remember(currentRoute) { currentRoute == Screen.Camera.route }
+
+    val screenName = remember(currentRoute) {
+        when {
+            currentRoute == Screen.Setting.route -> "Setting"
+            currentRoute == Screen.FriendList.route -> "Friend List"
+            currentRoute.startsWith(Screen.FriendDetail.route.substringBefore("{")) -> "Friend Detail"
+            else -> ""
         }
     }
 
-    val isExceptionScreen = currentRoute == Screen.Setting.route || 
-                       currentRoute == Screen.FriendList.route || 
-                       currentRoute?.startsWith("detail_teman/") == true
-
-    val isAuthScreen = currentRoute == Routes.LOGIN || currentRoute == Routes.REGISTER
-    val isCameraScreen = currentRoute == Screen.Camera.route
-    var screenName = ""
-    if (isExceptionScreen) {
-        if (currentRoute == Screen.Setting.route) {
-            screenName = "Setting"
-        } else if (currentRoute == Screen.FriendList.route) {
-            screenName = "Friend List"
-        } else if (currentRoute?.startsWith("detail_teman/") == true) {
-            screenName = "Friend Detail"
-        }
-    }
     Scaffold(
         topBar = {
             if (!isAuthScreen && !isCameraScreen) {
@@ -151,69 +127,110 @@ fun AppNavigation() {
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Login.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            // Auth Screens
-            composable(Screen.Login.route) {
-                LoginScreen(
-                    onCreateAccountClick = {
-                        navController.navigate(Screen.Register.route)
+        AppNavHost(navController, cameraViewModel, Modifier.padding(innerPadding))
+    }
+}
+
+@Composable
+fun AppNavHost(
+    navController: NavHostController,
+    cameraViewModel: CameraViewModel,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Login.route,
+        modifier = modifier
+    ) {
+        // Auth Screens
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onCreateAccountClick = {
+                    navController.navigate(Screen.Register.route)
+                }
+            )
+        }
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                onLoginClick = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
-                )
-            }
-            composable(Screen.Register.route) {
-                RegisterScreen(
-                    onLoginClick = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.FriendDetail.route,
+            arguments = listOf(
+                navArgument("friendId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val friendId = backStackEntry.arguments?.getString("friendId") ?: ""
+            FriendScreen(friendId = friendId)
+        }
+
+        composable(Screen.FriendList.route) {
+            FriendListScreen(navController)
+        }
+        composable(Screen.AddFriend.route) {
+            AddFriendScreen()
+        }
+
+        // Main Screens
+        composable(Screen.Home.route) {
+            HomeScreen(cameraViewModel = cameraViewModel)
+        }
+
+        composable(Screen.Camera.route) {
+            CameraScreen(viewModel = cameraViewModel)
+        }
+        composable(Screen.Profile.route) {
+            ProfileScreen()
+        }
+        composable(Screen.Setting.route) {
+            SettingScreen(
+                onLogoutClick = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
                         }
                     }
-                )
-            }
+                }
+            )
+        }
+    }
+}
 
-            composable(
-                route = "detail_teman/{friendId}",
-                arguments = listOf(
-                    navArgument("friendId") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val friendId = backStackEntry.arguments?.getString("friendId") ?: ""
-                FriendScreen(friendId = friendId)
-            }
-
-            composable(Screen.FriendList.route) {
-                FriendListScreen(navController) // ✅ navController dipass
-            }
-            composable(Screen.AddFriend.route) {
-                AddFriendScreen() // ✅ navigasi ke halaman tambah teman
-            }
-
-            // Main Screens
-            composable(Screen.Home.route) {
-                HomeScreen(cameraViewModel = viewModel)
-            }
-
-            composable(Screen.Camera.route) {
-                CameraScreen(viewModel = viewModel)
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen()
-            }
-            composable(Screen.Setting.route) {
-                viewModel
-                SettingScreen(
-                    onLogoutClick = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                inclusive = true
-                            }
+@Composable
+fun HandleAuthState(
+    authState: AuthUiState,
+    currentRoute: String,
+    navController: NavHostController
+) {
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthUiState.Authenticated -> {
+                if (currentRoute == Screen.Login.route || currentRoute == Screen.Register.route) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
                         }
                     }
-                )
+                }
             }
+
+            is AuthUiState.NotAuthenticated -> {
+                if (currentRoute != Screen.Login.route && currentRoute != Screen.Register.route) {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+
+            else -> Unit
         }
     }
 }

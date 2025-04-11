@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.lumea.ui.theme.BlueLight
 import com.example.lumea.ui.theme.PinkLight
-import com.example.lumea.ui.navigation.Routes
+import com.example.lumea.ui.navigation.Screen
 
 sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
-    data object Home : BottomNavItem(Routes.HOME, "Beranda", Icons.Default.Home)
-    data object Camera : BottomNavItem(Routes.CAMERA, "", Icons.Default.Fingerprint)
-    data object Profile : BottomNavItem(Routes.PROFILE, "Profil", Icons.Default.AccountCircle)
+    data object Home : BottomNavItem(Screen.Home.route, "Beranda", Icons.Default.Home)
+    data object Camera : BottomNavItem(Screen.Camera.route, "Kamera", Icons.Default.Fingerprint)
+    data object Profile : BottomNavItem(Screen.Profile.route, "Profil", Icons.Default.AccountCircle)
 }
 
 @Composable
@@ -80,7 +80,7 @@ fun BottomNavigationBar(
                 .clip(CircleShape)
                 .background(BlueLight)
                 .align(Alignment.TopCenter)
-                .clickable { onNavigate(Routes.CAMERA) }
+                .clickable { onNavigate(Screen.Camera.route) }
                 .zIndex(1f),
         contentAlignment = Alignment.Center
         ) {
@@ -112,5 +112,5 @@ fun BottomNavigationBar(
 
 @Composable @Preview
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(currentRoute = Routes.HOME, onNavigate = {})
+    BottomNavigationBar(currentRoute = Screen.Home.route, onNavigate = {})
 }
