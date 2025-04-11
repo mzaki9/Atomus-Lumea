@@ -72,7 +72,6 @@ class HomeViewModel(
                 if (userId == null) {
                     Log.d(TAG, "No user ID available, user might not be logged in")
                     _statusMessage.value = "Please log in to view your health data"
-                    clearLatestHealthData()
                     return@launch
                 }
 
@@ -88,14 +87,12 @@ class HomeViewModel(
                     } else {
                         Log.d(TAG, "No health data available for this user")
                         _statusMessage.value = "No health data available yet. Try taking a measurement!"
-                        clearLatestHealthData()
                     }
                 } else {
                     val exception = result.exceptionOrNull()
                     Log.e(TAG, "Failed to fetch health data: ${exception?.message}", exception)
                     if (exception?.message?.contains("404") == true) {
                         _statusMessage.value = "No health data recorded yet. Take your first measurement!"
-                        clearLatestHealthData()
                     } else {
                         _statusMessage.value = "Could not load your health data: ${exception?.message}"
                     }
@@ -113,14 +110,8 @@ class HomeViewModel(
         _statusMessage.value = null
     }
 
-    private fun clearHealthData() {
-        _latestHealthData.value = null
-        // Clear CameraViewModel values
-        cameraViewModel.resetHealthData()
-    }
-
     fun clearLatestHealthData() {
-        clearHealthData()
+        _latestHealthData.value = null
         _statusMessage.value = null
     }
 
