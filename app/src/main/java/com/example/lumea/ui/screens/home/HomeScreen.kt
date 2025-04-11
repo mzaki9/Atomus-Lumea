@@ -61,7 +61,8 @@ fun HomeScreen(
     val latestHealthData by homeViewModel.latestHealthData.collectAsState()
     
     // Refresh data when the screen is first composed
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = Unit) {
+        homeViewModel.clearLatestHealthData()
         homeViewModel.fetchLatestHealthData()
     }
     

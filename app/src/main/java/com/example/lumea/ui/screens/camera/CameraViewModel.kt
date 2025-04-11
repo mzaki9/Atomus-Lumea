@@ -144,6 +144,19 @@ class CameraViewModel(
 
     }
 
+    // Add this function to CameraViewModel class
+    fun resetHealthData() {
+        _heartRate.value = 0
+        _spo2.value = 0f
+        _respiratoryRate.value = 0f
+        _riskClass.value = null
+        _riskPrediction.value = null
+        _statusMessage.value = null
+        locationSent = false
+        healthDataSent = false
+        Log.d("CameraViewModel", "Health data has been reset")
+    }
+
     fun stopMeasurement() {
         cameraManager.stopPpgMeasurement()
 

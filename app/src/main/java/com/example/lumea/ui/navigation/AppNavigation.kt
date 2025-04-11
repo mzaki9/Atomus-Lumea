@@ -203,6 +203,7 @@ fun AppNavigation() {
                 ProfileScreen()
             }
             composable(Screen.Setting.route) {
+                viewModel
                 SettingScreen(
                     onLogoutClick = {
                         navController.navigate(Screen.Login.route) {

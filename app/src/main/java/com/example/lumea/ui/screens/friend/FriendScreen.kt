@@ -159,7 +159,7 @@ fun FriendScreen(
                                 // Heart Rate Card
                                 MetricCard(
                                     title = "Heart Rate",
-                                    value = (friend.health.heartRate ?: 0).toString(),
+                                    value = (friend.health.heartRate ?: 0).toInt().toString(),
                                     unit = "BPM",
                                     icon = Icons.Rounded.Favorite,
                                     gradientColors = listOf(Color(0xFF4CAF50), Color(0xFF8BC34A)),
@@ -171,7 +171,7 @@ fun FriendScreen(
                                 // SPO2 Card
                                 MetricCard(
                                     title = "Blood Oxygen",
-                                    value = (friend.health.bloodOxygen ?: 0).toString(),
+                                    value = (friend.health.bloodOxygen ?: 0).toInt().toString(),
                                     unit = "%",
                                     icon = Icons.Rounded.Bloodtype,
                                     gradientColors = listOf(Color(0xFF2196F3), Color(0xFF03A9F4)),
@@ -184,7 +184,7 @@ fun FriendScreen(
                             // Respiratory Rate Card (full width)
                             MetricCard(
                                 title = "Respiratory Rate",
-                                value = (friend.health.respiratoryRate ?: 0).toString(),
+                                value = (friend.health.respiratoryRate ?: 0).toInt().toString(),
                                 unit = "breaths/min",
                                 icon = Icons.Rounded.Air,
                                 gradientColors = listOf(Color(0xFF9C27B0), Color(0xFFE040FB)),

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumea.ui.auth.AuthViewModel
+import com.example.lumea.ui.screens.camera.CameraViewModel
 import com.example.lumea.ui.theme.AppTypography
 import com.example.lumea.ui.theme.BluePrimary
 import com.example.lumea.ui.theme.LumeaTheme
@@ -58,6 +59,7 @@ import com.example.lumea.ui.theme.PinkLight
 @Composable
 fun SettingScreen(
     viewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(LocalContext.current)),
+    cameraViewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current)),
     onLogoutClick: () -> Unit = {}
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -128,7 +130,7 @@ fun SettingScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.logout()
+                        viewModel.logout(cameraViewModel)
                         showLogoutDialog = false
                         onLogoutClick()
                     }

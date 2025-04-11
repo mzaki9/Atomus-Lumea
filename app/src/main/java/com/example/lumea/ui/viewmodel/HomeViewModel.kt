@@ -2,9 +2,11 @@ package com.example.lumea.ui.viewmodel
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumea.data.api.NetworkModule
 import com.example.lumea.data.auth.AuthRepository
 import com.example.lumea.data.auth.TokenManager
@@ -24,6 +26,8 @@ class HomeViewModel(
 
     private val TAG = "HomeViewModel"
 
+
+
     // Status message for UI feedback
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> = _statusMessage.asStateFlow()
@@ -35,6 +39,7 @@ class HomeViewModel(
     // Flag to track if data has been fetched
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
 
     init {
         // Fetch data when ViewModel is created
@@ -102,6 +107,11 @@ class HomeViewModel(
     }
 
     fun clearStatusMessage() {
+        _statusMessage.value = null
+    }
+
+    fun clearLatestHealthData() {
+        _latestHealthData.value = null
         _statusMessage.value = null
     }
 

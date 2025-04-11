@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lumea.data.auth.AuthRepository
 import com.example.lumea.data.auth.AuthState
+import com.example.lumea.ui.screens.camera.CameraViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,8 +80,9 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun logout() {
+    fun logout(cameraViewModel: CameraViewModel? = null) {
         viewModelScope.launch {
+            cameraViewModel?.resetHealthData()
             authRepository.logout()
         }
     }
