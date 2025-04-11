@@ -29,6 +29,14 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Air
+import androidx.compose.material.icons.rounded.Bloodtype
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Timeline
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+
 
 @Composable
 fun HealthHistoryCharts(
@@ -36,21 +44,7 @@ fun HealthHistoryCharts(
     modifier: Modifier = Modifier
 ) {
     if (healthData.isEmpty()) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(250.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No health history data available yet",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
+        EmptyHistoryPlaceholder(modifier)
         return
     }
 
@@ -74,258 +68,200 @@ fun HealthHistoryCharts(
     }
 
     // Extract colors from the theme in the composable context
-    val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
-    val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
-    val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+    val textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f).toArgb()
+    val gridColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f).toArgb()
+    val heartRateColor = Color(0xFFFF6B6B).toArgb()
+    val bloodOxygenColor = Color(0xFF2196F3).toArgb()
+    val respiratoryRateColor = Color(0xFF4CAF50).toArgb()
 
     Column(modifier = modifier.fillMaxWidth()) {
         // Heart Rate Chart
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)) {
-                Text(
-                    text = "Heart Rate",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                )
-                
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .padding(8.dp),
-                    factory = { context ->
-                        LineChart(context).apply {
-                            description.isEnabled = false
-                            legend.isEnabled = false
-                            setTouchEnabled(true)
-                            setScaleEnabled(false)
-                            isDragEnabled = true
-                            setPinchZoom(false)
-                            setDrawGridBackground(false)
-
-                            // Configure X-axis
-                            xAxis.apply {
-                                position = XAxis.XAxisPosition.BOTTOM
-                                granularity = 1f
-                                setDrawGridLines(false)
-                                valueFormatter = IndexAxisValueFormatter(xAxisLabels)
-                                setTextColor(textColor)
-                            }
-
-                            // Configure Y-axis
-                            axisLeft.apply {
-                                setDrawGridLines(true)
-                                setTextColor(textColor)
-                            }
-
-                            axisRight.isEnabled = false
-
-                            // Add empty space to left and right
-                            extraLeftOffset = 10f
-                            extraRightOffset = 10f
-                        }
-                    },
-                    update = { chart ->
-                        // Heart rate data
-                        val heartRateEntries = sortedData.mapIndexed { index, data ->
-                            Entry(index.toFloat(), data.heartRate.toFloat())
-                        }
-
-                        // Create and style dataset
-                        val heartRateDataSet = LineDataSet(heartRateEntries, "Heart Rate (BPM)").apply {
-                            color = AndroidColor.RED
-                            lineWidth = 2.5f
-                            setDrawCircles(true)
-                            setCircleColor(AndroidColor.RED)
-                            circleRadius = 4f
-                            setDrawValues(false)
-                            mode = LineDataSet.Mode.CUBIC_BEZIER
-                            cubicIntensity = 0.2f
-                            setDrawFilled(true)
-                            fillColor = AndroidColor.RED
-                            fillAlpha = 50
-                        }
-
-                        val lineData = LineData(heartRateDataSet)
-                        chart.data = lineData
-                        chart.invalidate()
-                    }
-                )
-            }
-        }
-
+        ChartCard(
+            title = "Heart Rate",
+            entries = sortedData.mapIndexed { index, data ->
+                Entry(index.toFloat(), data.heartRate.toFloat())
+            },
+            xAxisLabels = xAxisLabels,
+            lineColor = heartRateColor,
+            textColor = textColor,
+            gridColor = gridColor,
+            iconVector = Icons.Rounded.Favorite
+        )
+        
         // Blood Oxygen Chart
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)) {
-                Text(
-                    text = "Blood Oxygen",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        ChartCard(
+            title = "Blood Oxygen",
+            entries = sortedData.mapIndexed { index, data ->
+                Entry(index.toFloat(), data.bloodOxygen.toFloat())
+            },
+            xAxisLabels = xAxisLabels,
+            lineColor = bloodOxygenColor,
+            textColor = textColor,
+            gridColor = gridColor,
+            yAxisMinimum = 90f,
+            yAxisMaximum = 100f,
+            iconVector = Icons.Rounded.Bloodtype
+        )
+        
+        // Respiratory Rate Chart
+        ChartCard(
+            title = "Respiratory Rate",
+            entries = sortedData.mapIndexed { index, data ->
+                Entry(index.toFloat(), data.respiratoryRate.toFloat())
+            },
+            xAxisLabels = xAxisLabels,
+            lineColor = respiratoryRateColor,
+            textColor = textColor,
+            gridColor = gridColor,
+            iconVector = Icons.Rounded.Air
+        )
+    }
+}
+
+@Composable
+private fun ChartCard(
+    title: String,
+    entries: List<Entry>,
+    xAxisLabels: List<String>,
+    lineColor: Int,
+    textColor: Int,
+    gridColor: Int,
+    yAxisMinimum: Float? = null,
+    yAxisMaximum: Float? = null,
+    iconVector: ImageVector
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Icon(
+                    imageVector = iconVector,
+                    contentDescription = null,
+                    tint = Color(lineColor),
+                    modifier = Modifier.size(22.dp)
                 )
-                
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .padding(8.dp),
-                    factory = { context ->
-                        LineChart(context).apply {
-                            description.isEnabled = false
-                            legend.isEnabled = false
-                            setTouchEnabled(true)
-                            setScaleEnabled(false)
-                            isDragEnabled = true
-                            setPinchZoom(false)
-                            setDrawGridBackground(false)
-
-                            // Configure X-axis
-                            xAxis.apply {
-                                position = XAxis.XAxisPosition.BOTTOM
-                                granularity = 1f
-                                setDrawGridLines(false)
-                                valueFormatter = IndexAxisValueFormatter(xAxisLabels)
-                                setTextColor(textColor)
-                            }
-
-                            // Configure Y-axis
-                            axisLeft.apply {
-                                setDrawGridLines(true)
-                                setTextColor(textColor)
-                                axisMinimum = 90f // Start from 90% for SPO2
-                                axisMaximum = 100f // Max 100%
-                            }
-
-                            axisRight.isEnabled = false
-
-                            // Add empty space to left and right
-                            extraLeftOffset = 10f
-                            extraRightOffset = 10f
-                        }
-                    },
-                    update = { chart ->
-                        // Blood oxygen data
-                        val spo2Entries = sortedData.mapIndexed { index, data ->
-                            Entry(index.toFloat(), data.bloodOxygen.toFloat())
-                        }
-
-                        // Create and style dataset
-                        val spo2DataSet = LineDataSet(spo2Entries, "Blood Oxygen (%)").apply {
-                            color = AndroidColor.BLUE
-                            lineWidth = 2.5f
-                            setDrawCircles(true)
-                            setCircleColor(AndroidColor.BLUE)
-                            circleRadius = 4f
-                            setDrawValues(false)
-                            mode = LineDataSet.Mode.CUBIC_BEZIER
-                            cubicIntensity = 0.2f
-                            setDrawFilled(true)
-                            fillColor = AndroidColor.BLUE
-                            fillAlpha = 50
-                        }
-
-                        val lineData = LineData(spo2DataSet)
-                        chart.data = lineData
-                        chart.invalidate()
-                    }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        }
+            
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .padding(8.dp),
+                factory = { context ->
+                    LineChart(context).apply {
+                        description.isEnabled = false
+                        legend.isEnabled = false
+                        setTouchEnabled(true)
+                        setScaleEnabled(false)
+                        isDragEnabled = true
+                        setPinchZoom(false)
+                        setDrawGridBackground(false)
+                        setNoDataText("No data available")
+                        setNoDataTextColor(textColor)
 
-        // Respiratory Rate Chart
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)) {
-                Text(
-                    text = "Respiratory Rate",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                )
-                
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .padding(8.dp),
-                    factory = { context ->
-                        LineChart(context).apply {
-                            description.isEnabled = false
-                            legend.isEnabled = false
-                            setTouchEnabled(true)
-                            setScaleEnabled(false)
-                            isDragEnabled = true
-                            setPinchZoom(false)
-                            setDrawGridBackground(false)
+                        // Configure X-axis
+                        xAxis.apply {
+                            position = XAxis.XAxisPosition.BOTTOM
+                            granularity = 1f
+                            setDrawGridLines(false)
+                            valueFormatter = IndexAxisValueFormatter(xAxisLabels)
+                            setTextColor(textColor)
+                            textSize = 9f
+                        }
 
-                            // Configure X-axis
-                            xAxis.apply {
-                                position = XAxis.XAxisPosition.BOTTOM
-                                granularity = 1f
-                                setDrawGridLines(false)
-                                valueFormatter = IndexAxisValueFormatter(xAxisLabels)
-                                setTextColor(textColor)
+                        // Configure Y-axis
+                        axisLeft.apply {
+                            setDrawGridLines(true)
+                            this.gridColor = gridColor
+                            setTextColor(textColor)
+                            textSize = 9f
+                            if (yAxisMinimum != null) {
+                                this.axisMinimum = yAxisMinimum
                             }
-
-                            // Configure Y-axis
-                            axisLeft.apply {
-                                setDrawGridLines(true)
-                                setTextColor(textColor)
+                            if (yAxisMaximum != null) {
+                                this.axisMaximum = yAxisMaximum
                             }
-
-                            axisRight.isEnabled = false
-
-                            // Add empty space to left and right
-                            extraLeftOffset = 10f
-                            extraRightOffset = 10f
-                        }
-                    },
-                    update = { chart ->
-                        // Respiratory rate data
-                        val respRateEntries = sortedData.mapIndexed { index, data ->
-                            Entry(index.toFloat(), data.respiratoryRate.toFloat())
                         }
 
-                        // Create and style dataset
-                        val respRateDataSet = LineDataSet(respRateEntries, "Respiratory Rate").apply {
-                            color = AndroidColor.GREEN
-                            lineWidth = 2.5f
-                            setDrawCircles(true)
-                            setCircleColor(AndroidColor.GREEN)
-                            circleRadius = 4f
-                            setDrawValues(false)
-                            mode = LineDataSet.Mode.CUBIC_BEZIER
-                            cubicIntensity = 0.2f
-                            setDrawFilled(true)
-                            fillColor = AndroidColor.GREEN
-//                            fillAlpha = the50
-                        }
-
-                        val lineData = LineData(respRateDataSet)
-                        chart.data = lineData
-                        chart.invalidate()
+                        axisRight.isEnabled = false
+                        extraLeftOffset = 10f
+                        extraRightOffset = 10f
+                        extraBottomOffset = 5f
                     }
+                },
+                update = { chart ->
+                    // Create and style dataset
+                    val dataSet = LineDataSet(entries, title).apply {
+                        color = lineColor
+                        lineWidth = 2f
+                        setDrawCircles(true)
+                        setCircleColor(lineColor)
+                        circleRadius = 3f
+                        setDrawValues(false)
+                        mode = LineDataSet.Mode.CUBIC_BEZIER
+                        cubicIntensity = 0.15f
+                        setDrawFilled(true)
+                        fillColor = lineColor
+                        fillAlpha = 30
+                        highLightColor = lineColor
+                        setDrawHorizontalHighlightIndicator(false)
+                    }
+
+                    val lineData = LineData(dataSet)
+                    chart.data = lineData
+                    chart.animateX(500)
+                    chart.invalidate()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyHistoryPlaceholder(modifier: Modifier) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Timeline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "No health history data available yet",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
         }
