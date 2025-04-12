@@ -57,10 +57,17 @@ data class User(
     @SerializedName("name") val name: String
 )
 
+// User with connection request information model
+data class UserConnectivity(
+    @SerializedName("id") val id: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("isRequestSent") val isRequestSent: Boolean
+)
+
 // Search response
 data class SearchResponse(
     @SerializedName("success") val success: Boolean = false,
-    @SerializedName("data") val data: List<User> = emptyList(),
+    @SerializedName("data") val data: List<UserConnectivity> = emptyList(),
     @SerializedName("message") val message: String? = null
 )
 

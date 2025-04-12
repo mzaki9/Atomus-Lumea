@@ -15,12 +15,21 @@ import com.example.lumea.services.TokenServiceManager
 import com.example.lumea.ui.navigation.AppNavigation
 import com.example.lumea.ui.theme.LumeaTheme
 import kotlinx.coroutines.launch
+import com.example.lumea.workers.scheduleNotification
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+        //  Notification
+        requestNotificationPermissionIfNeeded()
+        scheduleNotification(this)
 
          // Initialize username manager
         val usernameManager = UsernameManager.getInstance(applicationContext)
@@ -51,5 +60,23 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         // Optionally stop token validation when app is destroyed
         // TokenServiceManager.stopTokenValidationService(this)
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1
+                )
+            }
+        }
     }
 }

@@ -15,13 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.lumea.data.model.User
+import com.example.lumea.data.model.UserConnectivity
 
 @Composable
 fun SearchSection(
     searchQuery: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    users: List<User>,
+    users: List<UserConnectivity>,
     onAddFriend: (String) -> Unit,
     isLoading: Boolean = false,
     error: String? = null
@@ -127,19 +128,33 @@ fun SearchSection(
                                         modifier = Modifier.weight(1f)
                                     )
 
-                                    Button(
-                                        onClick = { onAddFriend(user.id) },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary
-                                        )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = "Add Friend",
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Add Friend")
+                                    if (user.isRequestSent) {
+                                        Button(
+                                            onClick = {},
+                                            enabled = false,
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                disabledContainerColor = Color.LightGray,
+                                                disabledContentColor = Color.DarkGray
+                                            )
+                                        ) {
+                                            Text("Pending")
+                                        }
+                                    } else {
+                                        Button(
+                                            onClick = { onAddFriend(user.id) },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            )
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = "Add Friend",
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Add Friend")
+                                        }
                                     }
                                 }
                             }

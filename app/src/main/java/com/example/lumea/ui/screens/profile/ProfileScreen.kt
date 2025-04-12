@@ -52,6 +52,9 @@ import com.example.lumea.ui.components.HealthHistoryChart
 import com.example.lumea.ui.components.HealthHistoryCharts
 import com.example.lumea.ui.navigation.Screen
 import com.example.lumea.ui.viewmodel.ProfileViewModel
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 
 @Composable
 fun ProfileScreen(
@@ -202,9 +205,19 @@ fun ProfileScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 userData?.location?.let { location ->
+                                    val context = LocalContext.current
+                                    val mapsUrl = "https://www.google.com/maps?q=${location.latitude},${location.longitude}"
+
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
+                                                context.startActivity(intent)
+                                            }
+                                            .padding(vertical = 4.dp)
                                     ) {
                                         Icon(
                                             Icons.Filled.LocationOn,
@@ -213,11 +226,15 @@ fun ProfileScreen(
                                             modifier = Modifier.size(24.dp)
                                         )
                                         Text(
-                                            text = "Lat: ${location.latitude}, Long: ${location.longitude}",
-                                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                                            text = "Latest Location",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Medium
+                                            )
                                         )
                                     }
                                 }
+
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))

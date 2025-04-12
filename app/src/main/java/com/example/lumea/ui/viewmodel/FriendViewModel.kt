@@ -16,6 +16,7 @@ import com.example.lumea.data.model.FriendRequest
 import com.example.lumea.data.model.RespondRequestBody
 import com.example.lumea.data.model.SearchRequest
 import com.example.lumea.data.model.User
+import com.example.lumea.data.model.UserConnectivity
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -30,8 +31,8 @@ class FriendViewModel(
         private const val TAG = "FriendViewModel"
     }
 
-    private val _searchResults = MutableLiveData<List<User>>()
-    val searchResults: LiveData<List<User>> = _searchResults
+    private val _searchResults = MutableLiveData<List<UserConnectivity>>()
+    val searchResults: LiveData<List<UserConnectivity>> = _searchResults
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -177,8 +178,9 @@ class FriendViewModel(
 
                 if (response.isSuccessful) {
                     _requestSuccess.value = "Friend request sent successfully"
-                    // Remove user from search results to avoid duplicate requests
-                    _searchResults.value = _searchResults.value?.filterNot { it.id == userId }
+                    _searchResults.value = _searchResults.value?.map {
+                        if (it.id == userId) it.copy(isRequestSent = true) else it
+                    }
                     Log.d(TAG, "Friend request sent successfully")
                 } else {
                     val errorBody = response.errorBody()?.string()
