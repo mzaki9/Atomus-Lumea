@@ -70,6 +70,7 @@ fun AppNavigation() {
         currentRoute == Screen.Setting.route ||
                 currentRoute == Screen.FriendList.route ||
                 currentRoute.startsWith(Screen.FriendDetail.route.substringBefore("{"))
+        || currentRoute == Screen.AddFriend.route
     }
 
     val isAuthScreen = remember(currentRoute) {
@@ -82,6 +83,7 @@ fun AppNavigation() {
             currentRoute == Screen.Setting.route -> "Setting"
             currentRoute == Screen.FriendList.route -> "Friend List"
             currentRoute.startsWith(Screen.FriendDetail.route.substringBefore("{")) -> "Friend Detail"
+            currentRoute == Screen.AddFriend.route -> "Add Friend"
             else -> ""
         }
     }

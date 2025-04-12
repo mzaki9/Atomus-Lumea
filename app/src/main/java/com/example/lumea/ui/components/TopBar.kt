@@ -80,7 +80,7 @@ fun TopBar(
                 Spacer(modifier = Modifier.weight(1f))
 
                 // Only show action icons for non-settings screens
-                if (!isExceptionScreen) {
+                if (!isExceptionScreen || screenName == "Add Friend") {
                     IconButton(onClick = onGroupClick) {
                         Icon(
                             imageVector = Icons.Default.Group,
