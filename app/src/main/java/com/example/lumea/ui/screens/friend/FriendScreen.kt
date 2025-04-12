@@ -1,6 +1,10 @@
 package com.example.lumea.ui.screens.friend
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.Bloodtype
 import androidx.compose.material.icons.rounded.Favorite
@@ -265,8 +270,11 @@ fun MetricCard(
 fun FriendCard(
     friendName: String,
     healthStatus: String,
-    heartRate: Int
+    heartRate: Int,
+    viewModel: FriendDetailViewModel = viewModel(factory = FriendDetailViewModel.Factory(LocalContext.current))
 ) {
+    val friendData by viewModel.friendData.collectAsState()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -346,12 +354,36 @@ fun FriendCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Last updated text
-            Text(
-                text = "Last active: Just now",
-                style = AppTypography.bodySmall,
-                color = Color.White.copy(alpha = 0.7f)
-            )
+            friendData?.location?.let { location ->
+                val context = LocalContext.current
+                val mapsUrl = "https://www.google.com/maps?q=${location.latitude},${location.longitude}"
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
+                            context.startActivity(intent)
+                        }
+                        .padding(vertical = 4.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.LocationOn,
+                        contentDescription = "Latest Location",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Latest Location",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+            }
         }
     }
 }

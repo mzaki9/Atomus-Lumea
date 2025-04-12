@@ -61,7 +61,7 @@ class HealthViewModel(
                 status = status
             )
             
-            val result = healthRepository.updateHealthData(healthData)
+            val result = healthRepository.saveHealthData(healthData)
             _statusMessage.value = if (result.isSuccess) {
                 "Health data updated successfully"
             } else {

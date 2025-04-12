@@ -96,7 +96,7 @@ class HealthRepository(
             _error.value = null
             
             val token = tokenManager.getAccessToken() ?: return Result.failure(Exception("No authentication token available"))
-            val response = healthApi.updateHealthData("Bearer $token", healthData)
+            val response = healthApi.createHealthData("Bearer $token", healthData)
             
             if (response.isSuccessful) {
                 val healthResponse = response.body()
