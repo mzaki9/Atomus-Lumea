@@ -48,9 +48,8 @@ class CameraManager(
         timerSeconds++
         Log.d("HeartRate", "Measurement in progress: $timerSeconds seconds")
         
-        if (timerSeconds >= 60) {
-            Log.d("HeartRate", "Measurement complete: 60 seconds reached")
-            // Stop the measurement after 60 seconds
+        if (timerSeconds >= 30) {
+            Log.d("HeartRate", "Measurement complete: 30 seconds reached")
             stopPpgMeasurement()
         } else {
             handler.postDelayed(this, 1000)

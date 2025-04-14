@@ -19,11 +19,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -38,124 +42,108 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lumea.ui.auth.AuthViewModel
+import com.example.lumea.ui.screens.camera.CameraViewModel
 import com.example.lumea.ui.theme.AppTypography
+import com.example.lumea.ui.theme.BluePrimary
 import com.example.lumea.ui.theme.LumeaTheme
+import com.example.lumea.ui.theme.PinkLight
 
 @Composable
 fun SettingScreen(
+    viewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(LocalContext.current)),
+    cameraViewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current)),
     onLogoutClick: () -> Unit = {}
 ) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var notificationsEnabled by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
     ) {
+        // Top content
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier.weight(1f)  // This pushes logout to bottom
         ) {
-            // Header
-            Text(
-                "Settings",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = (-0.5).sp
-                ),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(vertical = 24.dp)
+            ModernSettingItem(
+                icon = Icons.Default.Person,
+                title = "Profile",
+                description = "View and edit your profile",
+                onClick = { /* Handle profile click */ }
             )
 
-            // User preferences section
-            Text(
-                "User Preferences",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp, top = 8.dp)
-            )
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Only notification toggle now (dark mode removed)
-            var notificationsEnabled by remember { mutableStateOf(true) }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 0.dp
-                )
-            ) {
-                Column {
-                    ModernSwitchItem(
-                        icon = Icons.Rounded.Notifications,
-                        title = "Notifications",
-                        checked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it }
-                    )
-                }
-            }
-
-            // Account section
-            Text(
-                "Account",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp, top = 32.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 0.dp
-                )
-            ) {
-                Column {
-                    ModernSettingItem(
-                        icon = Icons.Default.Person,
-                        title = "Profile",
-                        description = "Edit your personal information",
-                        onClick = { /* Navigate to profile */ }
-                    )
-
-                    Divider(
-                        modifier = Modifier.padding(start = 72.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        thickness = 1.dp
-                    )
-
-                    ModernSettingItem(
-                        icon = Icons.Default.ExitToApp,
-                        title = "Logout",
-                        description = "Sign out from your account",
-                        onClick = onLogoutClick
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // App version
-            Text(
-                "Lumea v1.0.0",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+            ModernSwitchItem(
+                icon = Icons.Rounded.Notifications,
+                title = "Notifications",
+                checked = notificationsEnabled,
+                onCheckedChange = { notificationsEnabled = it }
             )
         }
+
+        // Logout button at the bottom
+        Button(
+            onClick = { showLogoutDialog = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BluePrimary
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = "Logout",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Logout", 
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+            }
+        }
+    }
+
+    // Dialog confirmation handling
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Logout Confirmation") },
+            text = { Text("Are you sure you want to logout?", textAlign = TextAlign.Center) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.logout(cameraViewModel)
+                        showLogoutDialog = false
+                        onLogoutClick()
+                    }
+                ) {
+                    Text("Yes, Logout")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

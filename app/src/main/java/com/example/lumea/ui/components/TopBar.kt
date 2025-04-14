@@ -14,15 +14,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.lumea.ui.common.ObserveUsername
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     onGroupClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    isSettingsScreen: Boolean = false,
-    onBackClick: () -> Unit = {}
+    isExceptionScreen: Boolean = false,
+    screenName: String = "",
+    onBackClick: () -> Unit = {},
 ) {
+
+    val username = ObserveUsername()
+
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         colors = TopAppBarDefaults.topAppBarColors(
@@ -30,7 +36,7 @@ fun TopBar(
             navigationIconContentColor = MaterialTheme.colorScheme.primary,
             actionIconContentColor = MaterialTheme.colorScheme.primary
         ),
-        navigationIcon = if (isSettingsScreen) {
+        navigationIcon = if (isExceptionScreen) {
             {
                 IconButton(onClick = onBackClick) {
                     Icon(
@@ -48,7 +54,7 @@ fun TopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (!isSettingsScreen) {
+                if (!isExceptionScreen) {
                     // Show the greeting for non-settings screens
                     Text(
                         text = "Hai, ",
@@ -56,7 +62,7 @@ fun TopBar(
                         color = Color.Black
                     )
                     Text(
-                        text = "Bowo",
+                        text = username,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -64,17 +70,17 @@ fun TopBar(
                 } else {
                     // Show Settings title for the settings screen
                     Text(
-                        text = "Settings",
+                        text = screenName,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.weight(1f))
-                
+
                 // Only show action icons for non-settings screens
-                if (!isSettingsScreen) {
+                if (!isExceptionScreen || screenName == "Add Friend") {
                     IconButton(onClick = onGroupClick) {
                         Icon(
                             imageVector = Icons.Default.Group,

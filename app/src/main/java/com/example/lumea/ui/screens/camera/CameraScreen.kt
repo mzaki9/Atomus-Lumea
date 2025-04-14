@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumea.data.sensor.CameraManager
+import com.example.lumea.ui.theme.AppTypography
 import com.example.lumea.ui.theme.LumeaTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -31,6 +32,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
+
 fun CameraScreen(
     viewModel: CameraViewModel = viewModel(factory = CameraViewModel.Factory(LocalContext.current))
 ) {
@@ -58,7 +60,10 @@ fun CameraScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        if (cameraPermissionState.status.isGranted) {
+
+        val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (cameraPermissionState.status.isGranted && locationPermissionState.status.isGranted) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -90,7 +95,9 @@ fun CameraScreen(
                                         .padding(16.dp)
                                         .width(300.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                        containerColor = MaterialTheme.colorScheme.surface.copy(
+                                            alpha = 0.8f
+                                        )
                                     ),
                                     shape = RoundedCornerShape(16.dp)
                                 ) {
@@ -137,7 +144,7 @@ fun CameraScreen(
                             respiratoryRate = respiratoryRate,
                             spo2 = spo2,
                             riskClass = riskClass,
-                            riskPrediction= riskPrediction
+                            riskPrediction = riskPrediction
                         )
                     }
                 }
@@ -148,24 +155,104 @@ fun CameraScreen(
                         .padding(bottom = 32.dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            if (cameraState is CameraManager.CameraState.Measuring) {
-                                viewModel.stopMeasurement()
-                            } else {
-                                viewModel.startMeasurement(lifecycleOwner)
-                            }
-                        },
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.primary
+                    if (cameraState is CameraManager.CameraState.Measuring) {
+                    // Show a circular progress indicator when measuring
+                    Card(
+                        shape = RoundedCornerShape(28.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(
-                            text = if (cameraState is CameraManager.CameraState.Measuring)
-                                "Stop" else "Start",
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        ) {
+                            // Track the elapsed time since measurement started
+                            val elapsedTime = remember { mutableStateOf(0f) }
+                            val totalDuration = 30f // 60 seconds / 1 minute
+                            
+                            // Update elapsed time animation
+                            LaunchedEffect(cameraState) {
+                                elapsedTime.value = 0f
+                                while (elapsedTime.value < totalDuration && cameraState is CameraManager.CameraState.Measuring) {
+                                    kotlinx.coroutines.delay(100)
+                                    elapsedTime.value += 0.1f
+                                }
+                            }
+                            
+                            CircularProgressIndicator(
+                                progress = { (elapsedTime.value / totalDuration).coerceIn(0f, 1f) },
+                                modifier = Modifier.size(32.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 3.dp
+                            )
+                            
+                            Spacer(modifier = Modifier.width(12.dp))
+                            
+                            Column {
+                                Text(
+                                    "Measuring...",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                
+                                Text(
+                                    "${(totalDuration - elapsedTime.value).toInt()} seconds remaining",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                )
+                            }   
+                        }
+                    }
+                
+                    } else if (heartRate <= 0 && respiratoryRate <= 0 && spo2 <= 0) {
+                        // Only show the start button when there are no measurement results
+                        Button(
+                            onClick = { viewModel.startMeasurement(lifecycleOwner) },
+                            shape = RoundedCornerShape(24.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                            elevation = ButtonDefaults.buttonElevation(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.Favorite,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "Start Measurement",
+                                style = AppTypography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    } else {
+                        // When results are displayed, show a smaller "Measure Again" button
+                        Button(
+                            onClick = { viewModel.startMeasurement(lifecycleOwner) },
+                            shape = RoundedCornerShape(24.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                            elevation = ButtonDefaults.buttonElevation(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.Favorite,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "Measure Again",
+                                style = AppTypography.labelLarge,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 }
             }
@@ -197,15 +284,16 @@ fun CameraScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "To measure your heart rate, we need access to your camera and flash",
+                    text = "To measure your heart rate, we need access to your camera,flash, and location",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = AppTypography.bodyLarge
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { cameraPermissionState.launchPermissionRequest() },
+                    onClick = { cameraPermissionState.launchPermissionRequest()
+                    locationPermissionState.launchPermissionRequest() },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
