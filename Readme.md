@@ -103,7 +103,8 @@ Lumea was developed by Team FindIT, consisting of:
 - **Hugo Sabam Augusto** - [GitHub](https://github.com/miannetopokki)
 - **Albert Ghazaly** - [GitHub](https://github.com/albertghazaly)
 
-
+## Video Demo
+https://drive.google.com/file/d/1nQ-HL-KpSHWRhhWlJmOrGTgX4wmotsfv/view?usp=drive_link
 
 ## Backend Repository
 https://github.com/mzaki9/lumea-backend
